@@ -15,11 +15,15 @@
                 </b-form-group>
 
                 <b-form-group label="Number to Show:" label-for="srch-n">
-                    <b-form-input id="srch-n" v-model="search.count" placeholder="Number..."></b-form-input>
+                    <b-input-group prepend="#">
+                        <b-form-input id="srch-n" v-model="search.count" placeholder="Number..."></b-form-input>
+                    </b-input-group>
                 </b-form-group>
 
                 <b-form-group label="Number to Skip:" label-for="srch-s">
-                    <b-form-input id="srch-s" v-model="search.startIndex" placeholder="Start after..."></b-form-input>
+                    <b-input-group prepend="#">
+                        <b-form-input id="srch-s" v-model="search.startIndex" placeholder="Start after..."></b-form-input>
+                    </b-input-group>
                 </b-form-group>
 
                 <b-form-group>
@@ -27,6 +31,10 @@
                     <b-button variant="danger" v-b-toggle.filter>Cancel</b-button>
                 </b-form-group>
             </div>
+        </b-sidebar>
+
+        <b-sidebar id="profile" title="Sign in" variant="info" shadow lazy right>
+
         </b-sidebar>
 
         <b-alert v-for="(error, index) in errors" :key="error.message"
@@ -39,7 +47,12 @@
                 Petitions
             </b-navbar-brand>
 
-            <b-dropdown text="User" variant="light" right>
+            <b-button v-if="user == null" variant="light" v-b-toggle.profile>
+                <b-icon-people-circle></b-icon-people-circle>
+                Sign in
+            </b-button>
+
+            <b-dropdown v-else :text="user.name" variant="light" right>
                 <b-dropdown-item>
                     <router-link :to="{ name: 'user', params: { id: 6 } }">
                         Account
@@ -50,13 +63,15 @@
                 </b-dropdown-item>
             </b-dropdown>
         </b-navbar>
-        
-        <b-navbar v-if="viewing == null" variant="light" type="dark" fixed>
-            <b-button variant="info" v-b-toggle.filter @click="getCategories()" v-b-tooltip="'Adv Filtering'">
+
+        <b-navbar variant="light" type="dark" fixed>
+            <b-button v-if="viewing == null" variant="info" v-b-toggle.filter @click="getCategories()">
                 <b-icon-filter></b-icon-filter>
             </b-button>
 
-            <b-nav-form><b-input-group class="mx-3" v-if="!advFilter">
+            <b-button v-else variant="info" @click="setViewing(0)">Back</b-button>
+
+            <b-nav-form><b-input-group class="mx-3" v-if="!advFilter && viewing == null">
                 <b-form-input v-model="search.q" placeholder="Search..."></b-form-input>
                 <b-input-group-append>
                     <b-button variant="info" @click="getFilteredPetitions"><b-icon-search></b-icon-search></b-button>
@@ -78,13 +93,13 @@
         </div>
 
         <div v-else class="my-2">
-            <b-card style="max-width: 60rem;" class="w-75 mx-auto" v-b-tooltip="'Click to return'"
+            <b-card style="max-width: 60rem;" class="w-75 mx-auto"
              :img-src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/' + viewing.petitionId + '/photo'"
-             :title="viewing.title" :sub-title="viewing.signatureCount + ' signatures'" @click="setViewing(0)">
+             :title="viewing.title" :sub-title="viewing.signatureCount + ' signatures'">
                 <b-card-text>
                     {{ viewing.description }}
                 </b-card-text>
-                <b-button variant="info">Back</b-button>
+                <b-button variant="info" @click="setViewing(0)">Back</b-button>
             </b-card>
         </div>
     </div>
@@ -97,6 +112,7 @@ export default {
             errors: [],
             petitions: [],
             viewing: null,
+            user: null,
             advFilter: false,
             categories: [{
                 value: null,
@@ -194,6 +210,14 @@ export default {
         signPetition: function()
         {
 
+        }
+    },
+    computed: {
+        checkNumber()
+        {
+            return this.search.count == null || 
+                   this.search.count === "" || 
+                   Number(this.search.count) === NaN;
         }
     }
 }

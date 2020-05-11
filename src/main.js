@@ -31,13 +31,8 @@ const router = new VueRouter({
     mode: "history"
 })
 
-
-
 new Vue({
     el: '#app',
     router: router,
-    render: h => h(app),
-    data: {
-        test: "lkahfoa"
-    }
+    render: h => h(app)
 })
