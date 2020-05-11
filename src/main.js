@@ -9,7 +9,6 @@ import "bootstrap-vue/dist/bootstrap-vue.css"
 
 import app from "./App.vue"
 import home from "./Home.vue"
-import petitions from "./Petitions.vue"
 import users from "./Users.vue"
 
 Vue.use(BootstrapVue);
@@ -24,10 +23,6 @@ const router = new VueRouter({
             name: "home",
             component: home
         },{
-            path: "/petitions",
-            name: "petitions",
-            component: petitions
-        },{
             path: "/users/:id",
             name: "user",
             component: users
@@ -35,6 +30,8 @@ const router = new VueRouter({
     ],
     mode: "history"
 })
+
+
 
 new Vue({
     el: '#app',
