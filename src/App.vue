@@ -8,7 +8,7 @@
         <b-navbar variant="info" type="dark" toggleable sticky>
             <b-navbar-brand :to="{ name: 'home' }" left>
                 <b-icon-people-fill font-scale="1.4"></b-icon-people-fill>
-                Petition Site
+                <b>Petition Site</b>
             </b-navbar-brand>
 
             <b-button v-if="user == null" variant="light" v-b-toggle.profile>
