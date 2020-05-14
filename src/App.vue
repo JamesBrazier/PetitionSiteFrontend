@@ -7,6 +7,7 @@
 
         <b-navbar variant="info" type="dark" toggleable sticky>
             <b-navbar-brand :to="{ name: 'home' }" left>
+                <b-icon-people-fill font-scale="1.4"></b-icon-people-fill>
                 Petition Site
             </b-navbar-brand>
 
@@ -47,8 +48,7 @@
                         </b-input-group>
                     </b-form-group>
 
-                    
-                        <b-button variant="info" @click="login(); if (validEmail) hide()">Sign in</b-button>
+                    <b-button variant="info" @click="login(); if (validEmail) hide()">Sign in</b-button>
                     <b-button variant="danger" v-b-toggle.profile>Cancel</b-button>
 
                     <div class="my-3">
