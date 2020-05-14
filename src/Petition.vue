@@ -1,14 +1,14 @@
 <template>
     <div>
         <b-navbar variant="light" type="dark" fixed>
-            <b-button @click="$router.go(-1)" variant="info">
+            <b-button @click="$router.go(-1)" variant="danger">
                 Back
             </b-button>
         </b-navbar>
 
         <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
             <b-card :title="petition.title" :sub-title="petition.signatureCount + ' signatures'"
-            :img-src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/' + petition.petitionId + '/photo'">
+             :img-src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/' + petition.petitionId + '/photo'">
                 <b-card-text>
                     {{ petition.description }}
                 </b-card-text>
@@ -71,7 +71,6 @@ export default {
             this.$http.get(
                 "http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/" + this.$route.params.id + "/signatures"
             ).then((res) => {
-                console.log(res.data);
                 this.signatures = res.data;
             }).catch((err) => {
                 this.$emit("error", err);

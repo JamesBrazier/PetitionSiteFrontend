@@ -3,28 +3,33 @@
         <b-sidebar v-model="advFilter" id="filter" title="Filter Petitions" variant="info" shadow lazy>
             <div class="m-3">
                 <b-form-group label="Title:" label-for="srch-q">
-                    <b-form-input if="srch-q" v-model="search.q" placeholder="Search..."></b-form-input>
+                    <b-form-input if="srch-q" type="search" v-model="search.q" placeholder="Search...">
+                    </b-form-input>
                 </b-form-group>
 
                 <b-form-group label="Category:" label-for="srch-c">
-                    <b-form-select id="srch-c" v-model="search.categoryId" :options="categories"></b-form-select>
+                    <b-form-select id="srch-c" v-model="search.categoryId" :options="categories">
+                    </b-form-select>
                 </b-form-group>
 
                 <b-form-group label="Order:" label-for="srch-o">
-                    <b-form-select id="srch-o" v-model="search.sortBy" :options="orderings"></b-form-select>
+                    <b-form-select id="srch-o" v-model="search.sortBy" :options="orderings">
+                    </b-form-select>
                 </b-form-group>
 
                 <b-form-group label="Number to Show:" label-for="srch-n" :state="!isNaN(search.count)" 
                  invalid-feedback="Please input a number">
                     <b-input-group prepend="#">
-                        <b-form-input id="srch-n" v-model="search.count" placeholder="Number..."></b-form-input>
+                        <b-form-input id="srch-n" v-model="search.count" placeholder="Number...">
+                        </b-form-input>
                     </b-input-group>
                 </b-form-group>
 
                 <b-form-group label="Number to Skip:" label-for="srch-s" :state="!isNaN(search.startIndex)" 
                  invalid-feedback="Please input a number">
                     <b-input-group prepend="#">
-                        <b-form-input id="srch-s" v-model="search.startIndex" placeholder="Start after..."></b-form-input>
+                        <b-form-input id="srch-s" v-model="search.startIndex" placeholder="Start after...">
+                        </b-form-input>
                     </b-input-group>
                 </b-form-group>
 
@@ -41,7 +46,7 @@
             </b-button>
 
             <b-nav-form><b-input-group class="mx-3" v-if="!advFilter">
-                <b-form-input v-model="search.q" placeholder="Search..."></b-form-input>
+                <b-form-input type="search" v-model="search.q" placeholder="Search..."></b-form-input>
                 <b-input-group-append>
                     <b-button variant="info" @click="getFilteredPetitions"><b-icon-search></b-icon-search></b-button>
                 </b-input-group-append>

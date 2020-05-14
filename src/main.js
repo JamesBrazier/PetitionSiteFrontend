@@ -11,6 +11,7 @@ import app from "./App.vue"
 import home from "./Home.vue"
 import user from "./User.vue"
 import petition from "./Petition.vue"
+import signUp from "./Signup.vue"
 
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
@@ -33,6 +34,10 @@ const router = new VueRouter({
             path: "/petitions/:id",
             name: "petition",
             component: petition
+        },{
+            path: "/signup",
+            name: "signup",
+            component: signUp
         }
     ],
     mode: "history"
