@@ -9,12 +9,15 @@ import "bootstrap-vue/dist/bootstrap-vue.css"
 
 import app from "./App.vue"
 import home from "./Home.vue"
-import users from "./Users.vue"
+import user from "./User.vue"
+import petition from "./Petition.vue"
 
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
+
+console.log
 
 const router = new VueRouter({
     routes: [
@@ -25,7 +28,11 @@ const router = new VueRouter({
         },{
             path: "/users/:id",
             name: "user",
-            component: users
+            component: user
+        },{
+            path: "/petitions/:id",
+            name: "petition",
+            component: petition
         }
     ],
     mode: "history"
@@ -34,5 +41,8 @@ const router = new VueRouter({
 new Vue({
     el: '#app',
     router: router,
-    render: h => h(app)
+    render: h => h(app),
+    data: {
+        user: {}
+    }
 })
