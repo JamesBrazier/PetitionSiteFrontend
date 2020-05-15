@@ -4,7 +4,8 @@
          :img-src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/users/' + data.signatoryId + '/photo'"
          :sub-title="formatLoc">
             <b-card-text v-if="data.signedDate != null">
-                Signed: {{ formatDate }}
+                Signed: <br>
+                {{ formatDate(data.signedDate) }}
             </b-card-text>
         </b-card>
     </div>
@@ -18,6 +19,13 @@ export default {
         }
     },
     props: ["data"],
+    methods: {
+        formatDate: function(date)
+        {
+            let str = new Date(date).toUTCString();
+            return str.substr(0, 16) + " at " + str.substr(17, 5);
+        }
+    },
     computed: {
         formatLoc: function() {
             if (this.data.city != null) {
@@ -31,10 +39,6 @@ export default {
                     return this.data.country;
                 }
             }
-        },
-        formatDate: function()
-        {
-            return this.data.signedDate.substr(0, 10);
         }
     }
 }

@@ -79,11 +79,10 @@ export default {
                 text: "Alphabetical Ascending"
             }],
             search: {
-                startIndex: null,
-                count: null,
-                q: null,
+                startIndex: "",
+                count: "",
+                q: "",
                 categoryId: null,
-                authorId: null,
                 sortBy: "SIGNATURES_DESC"
             },
             startIndexValid: true,
@@ -106,16 +105,14 @@ export default {
         },
         getFilteredPetitions: function()
         {
-            if (isNaN(this.search.startIndex) || 
-                (this.search.startIndex !== null && 
-                this.search.startIndex.trim() === ""))
+            if (isNaN(this.search.startIndex) ||
+                this.search.startIndex.trim() === "")
             {
                 this.search.startIndex = undefined;
             }
 
-            if (isNaN(this.search.count) || 
-                (this.search.count !== null && 
-                this.search.count.trim() === ""))
+            if (isNaN(this.search.count) ||
+                this.search.count.trim() === "")
             {
                 this.search.count = undefined;
             }

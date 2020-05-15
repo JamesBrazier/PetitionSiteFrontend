@@ -62,28 +62,28 @@ export default {
         postUser: function() {
             this.valid.all = true;
 
-            if (this.name !== "") {
+            if (this.user.name !== "") {
                 this.valid.name = true;
             } else {
                 this.valid.name = false;
                 this.valid.all = false;
             }
 
-            if (this.email.includes('@')) {
+            if (this.user.email.includes('@')) {
                 this.valid.email = true;
             } else {
                 this.valid.email = false;
                 this.valid.all = false;
             }
             
-            if (this.password !== "") {
+            if (this.user.password !== "") {
                 this.valid.password = true;
             } else {
                 this.valid.password = false;
                 this.valid.all = false;
             }
 
-            if (this.repeat === this.password) {
+            if (this.repeat === this.user.password) {
                 this.valid.repeat = true;
             } else {
                 this.valid.repeat = false;
@@ -91,8 +91,10 @@ export default {
             }
 
             if (this.valid.all) {
-                if (this.city === "") this.user.city = this.city;
-                if (this.country === "") this.user.country = this.country;
+                if (this.city !== "") this.user.city = this.city;
+                if (this.country !== "") this.user.country = this.country;
+
+                console.log(this.user);
                 
                 this.$http.post(
                     "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/register", 
