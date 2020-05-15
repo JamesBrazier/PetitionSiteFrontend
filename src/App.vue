@@ -7,18 +7,20 @@
 
         <b-navbar variant="info" type="dark" toggleable sticky>
             <b-navbar-brand :to="{ name: 'home' }" left>
-                <b-icon-people-fill font-scale="1.4"></b-icon-people-fill>
+                <b-icon-people-fill font-scale="1.45"></b-icon-people-fill>
                 <b>Petition Site</b>
             </b-navbar-brand>
 
             <b-button v-if="user == null" variant="light" v-b-toggle.profile>
-                <b-icon-people-circle></b-icon-people-circle>
+                <b-icon-people-circle font-scale="1.45"></b-icon-people-circle>
                 Sign in
             </b-button>
 
             <b-dropdown v-else variant="light" right>
                 <template v-slot:button-content>
-                    <b-icon-people-circle></b-icon-people-circle>
+                    <b-img style="height: 1.6rem;" alt=" " rounded
+                     :src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/users/' + user.userId + '/photo'">
+                    </b-img>
                     {{ user.name }}
                 </template>
 
@@ -26,7 +28,7 @@
                     Account
                 </b-dropdown-item>
 
-                <b-dropdown-item @click="logout()">
+                <b-dropdown-item @click="logoutUser()">
                     Logout
                 </b-dropdown-item>
             </b-dropdown>
@@ -34,64 +36,126 @@
 
         <b-sidebar id="profile" title="Sign in" variant="info" shadow lazy right>
             <template v-slot:default="{ hide }">
-                <div class="m-3">
-                    <b-form-group label="Email:" label-for="ln-e" :state="validEmail"
-                    invalid-feedback="Please enter a valid email">
-                        <b-input-group prepend="@">
-                            <b-input id="ln-e" type="email" v-model="email" placeholder="Email"></b-input>
-                        </b-input-group>
-                    </b-form-group>
+                <div v-if="valid.login" class="m-3">
+                    <b-alert variant="success" show @dismissed="hide()" dismissible>
+                        Successful login!
+                    </b-alert>
 
-                    <b-form-group label="Password:" label-for="ln-p">
-                        <b-input-group prepend="*">
-                            <b-input id="ln-p" type="password" v-model="password" placeholder="Password"></b-input>
-                        </b-input-group>
-                    </b-form-group>
+                    <b-button variant="info" v-b-toggle.profile>Close</b-button>
+                </div>
 
-                    <b-button variant="info" @click="login(); if (validEmail) hide()">Sign in</b-button>
+                <div v-else class="m-3">
+                    <input-field label="Email:" :state="valid.email" invalid="Please enter a valid email"
+                    prepend="@" type="email" v-model="login.email" placeholder="Email"></input-field>
+
+                    <input-field label="Password:" :state="valid.password" invalid="Please enter your password"
+                    prepend="*" type="password" v-model="login.password" placeholder="Password"></input-field>
+
+                    <b-alert variant="danger" :show="valid.login === false" dismissible>
+                        Incorrect email or password!
+                    </b-alert>
+
+                    <b-button variant="info" v-if="!valid.login" @click="loginUser()">Sign in</b-button>
                     <b-button variant="danger" v-b-toggle.profile>Cancel</b-button>
 
                     <div class="my-3">
                         Don't have an account?
                         <router-link :to="{ name: 'signup' }">Sign up!</router-link>
                     </div>
-
-                    <!-- <b-button variant="info" v-b-toggle.profile>Sign up</b-button> -->
                 </div>
             </template>
         </b-sidebar>
 
-        <router-view @error="errors.push($event)"></router-view>
+        <router-view @error="pushErr($event)"></router-view>
     </div>
 </template>
 
 <script>
+import inputField from "./components/input-field.vue"
+
 export default {
     data () {
         return {
             errors: [],
-            validEmail: true,
-            email: "",
-            password: "",
+            valid: {
+                all: true,
+                email: true,
+                password: true,
+                login: null,
+            },
+            login: {
+                email: "",
+                password: ""
+            },
             user: null
         }
     },
     methods: {
-        login: function()
+        loginUser: function()
         {
-            if (this.email.includes('@')) {
-                this.validEmail = true;
+            this.valid.all = true;
+            this.valid.login = null;
 
-
+            if (this.login.email.includes('@')) {
+                this.valid.email = true;
             } else {
-                this.validEmail = false;
+                this.valid.email = false;
+                this.valid.all = false;
+            }
+
+            if (this.login.password !== "") {
+                this.valid.password = true;
+            } else {
+                this.valid.password = false;
+                this.valid.all = false;
+            }
+
+            if (this.valid.all) {
+                this.$http.post(
+                    "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/login", 
+                    this.login
+                ).then((resln) => {
+                    this.valid.login = true;
+                    this.$http.get(
+                        "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/" + resln.data.userId,
+                    ).then((resg) => {
+                        this.user = {...resln.data, ...resg.data};
+                        this.login = {email: "", password: ""};
+                    }).catch((err) => {
+                        this.pushErr(err);
+                    });
+                }).catch((err) => {
+                    if (err.response.status === 400) {
+                        this.valid.all = false;
+                        this.valid.login = false;
+                    } else {
+                        this.pushErr(err);
+                    }
+                });
             }
         },
-
-        logout: function()
+        logoutUser: function()
         {
-            this.user = null;
+            this.$http.post(
+                "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/logout", null,
+                { headers: {
+                    "X-Authorization": this.user.token
+                }}
+            ).then((err) => {
+                this.user = null;
+                this.valid.login = null;
+            }).catch((err) => {
+                this.pushErr(err);
+            });
+        },
+        pushErr: function(err)
+        {
+            this.errors.push(err);
+            throw err;
         }
+    },
+    components: {
+        "input-field": inputField
     }
 }
 </script>

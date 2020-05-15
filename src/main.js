@@ -1,5 +1,5 @@
 import Vue from "vue"
-import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue"
+import { BootstrapVue, BootstrapVueIcons, componentsPlugin } from "bootstrap-vue"
 import axios from "axios"
 import VueAxios from "vue-axios"
 import VueRouter from "vue-router"

@@ -2,44 +2,24 @@
     <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
         <b-card title="Sign up">
             <div v-if="creating">
-                <b-form-group label="Name:" label-for="su-n" :state="valid.name"
-                 invalid-feedback="Please enter your name">
-                    <b-input id="su-n" v-model="name" placeholder="Jane Doe">
-                    </b-input>
-                </b-form-group>
+                <input-field label="Name:" :state="valid.name" invalid="Please enter your name" 
+                 v-model="user.name" placeholder="Jane Doe"></input-field>
 
-                <b-form-group label="Email:" label-for="su-e" :state="valid.email"
-                 invalid-feedback="Please enter a valid email">
-                    <b-input-group prepend="@">
-                        <b-input id="su-e" type="email" v-model="email" placeholder="jane.doe@email.com">
-                        </b-input>
-                    </b-input-group>
-                </b-form-group>
+                <input-field label="Email:" :state="valid.email" invalid="Please enter a valid email"
+                 type="email" v-model="user.email" placeholder="jane.doe@email.com" prepend="@"></input-field>
 
-                <b-form-group label="Password:" label-for="su-p">
-                    <b-input-group prepend="*">
-                        <b-input id="su-p" type="password" v-model="password" placeholder="Password">
-                        </b-input>
-                    </b-input-group>
-                </b-form-group>
+                <input-field label="Password:" type="password" v-model="user.password" placeholder="Password"
+                 :state="valid.password" invalid="Please enter a password" prepend="*"></input-field>
 
-                <b-form-group label="Repeat Password:" label-for="su-rp" :state="valid.password"
-                 invalid-feeback="Passwords do not match">
-                    <b-input-group prepend="*">
-                        <b-input id="su-rp" type="password" v-model="repeatPassword" placeholder="Password">
-                        </b-input>
-                    </b-input-group>
-                </b-form-group>
+                <input-field label="Repeat Password:" type="password" v-model="repeat" 
+                 :state="valid.repeat" invalid="Passwords do not match" placeholder="Password" 
+                 prepend="*"></input-field>
 
-                <b-form-group label="Home City (Optional):" label-for="su-c">
-                    <b-input id="su-c" v-model="city" placeholder="New York">
-                    </b-input>
-                </b-form-group>
+                <input-field label="Home City (Optional):" v-model="city" 
+                 placeholder="New York"></input-field>
 
-                <b-form-group label="Home Country (Optional):" label-for="su-cn">
-                    <b-input id="su-cn" v-model="country" placeholder="USA">
-                    </b-input>
-                </b-form-group>
+                <input-field label="Home Country (Optional):" v-model="country" 
+                 placeholder="United States of America"></input-field>
             </div>
 
             <div v-else>
@@ -55,58 +35,78 @@
 </template>
 
 <script>
+import inputField from "./components/input-field.vue"
+
 export default {
     data () {
         return {
             creating: true,
             valid: {
+                all: true,
                 name: true,
                 email: true,
-                password: true
+                password: true,
+                repeat: true
             },
-            name: "",
-            email: "",
-            password: "",
-            repeatPassword: "",
+            user: {
+                name: "",
+                email: "",
+                password: ""
+            },
+            repeat: "",
             city: "",
             country: ""
         }
     },
     methods: {
         postUser: function() {
-            let allValid = true;
-
-            console.log(this.password, this.repeatPassword);
+            this.valid.all = true;
 
             if (this.name !== "") {
                 this.valid.name = true;
             } else {
                 this.valid.name = false;
-                allValid = false;
+                this.valid.all = false;
             }
 
             if (this.email.includes('@')) {
                 this.valid.email = true;
             } else {
                 this.valid.email = false;
-                allValid = false;
+                this.valid.all = false;
             }
             
-            if (this.password === this.repeatPassword) {
+            if (this.password !== "") {
                 this.valid.password = true;
             } else {
                 this.valid.password = false;
-                allValid = false;
+                this.valid.all = false;
             }
 
-            if (allValid) {
-                if (this.city === "") this.city = undefined;
-                if (this.country === "") this.country = undefined;
-                
+            if (this.repeat === this.password) {
+                this.valid.repeat = true;
+            } else {
+                this.valid.repeat = false;
+                this.valid.all = false;
+            }
 
-                this.creating = false;
+            if (this.valid.all) {
+                if (this.city === "") this.user.city = this.city;
+                if (this.country === "") this.user.country = this.country;
+                
+                this.$http.post(
+                    "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/register", 
+                    this.user
+                ).then((res) => {
+                    this.creating = false;
+                }).catch((err) => {
+                    this.$emit("error", err);
+                });
             }
         }
+    },
+    components: {
+        "input-field": inputField
     }
 }
 </script>

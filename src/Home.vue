@@ -2,10 +2,8 @@
     <div>
         <b-sidebar v-model="advFilter" id="filter" title="Filter Petitions" variant="info" shadow lazy>
             <div class="m-3">
-                <b-form-group label="Title:" label-for="srch-q">
-                    <b-form-input if="srch-q" type="search" v-model="search.q" placeholder="Search...">
-                    </b-form-input>
-                </b-form-group>
+                <input-field label="Title:" type="search" v-model="search.q" placeholder="Search...">
+                </input-field>
 
                 <b-form-group label="Category:" label-for="srch-c">
                     <b-form-select id="srch-c" v-model="search.categoryId" :options="categories">
@@ -17,26 +15,14 @@
                     </b-form-select>
                 </b-form-group>
 
-                <b-form-group label="Number to Show:" label-for="srch-n" :state="!isNaN(search.count)" 
-                 invalid-feedback="Please input a number">
-                    <b-input-group prepend="#">
-                        <b-form-input id="srch-n" v-model="search.count" placeholder="Number...">
-                        </b-form-input>
-                    </b-input-group>
-                </b-form-group>
+                <input-field label="Number to Show:" :state="!isNaN(search.count)" invalid="Please input a number"
+                 prepend="#" v-model="search.count" placeholder="Number..."></input-field>
 
-                <b-form-group label="Number to Skip:" label-for="srch-s" :state="!isNaN(search.startIndex)" 
-                 invalid-feedback="Please input a number">
-                    <b-input-group prepend="#">
-                        <b-form-input id="srch-s" v-model="search.startIndex" placeholder="Start after...">
-                        </b-form-input>
-                    </b-input-group>
-                </b-form-group>
+                <input-field label="Number to Skip:" :state="!isNaN(search.startIndex)" invalid="Please input a number"
+                 prepend="#" v-model="search.startIndex" placeholder="Start after..."></input-field>
 
-                <b-form-group>
-                    <b-button variant="info" @click="getFilteredPetitions" v-b-toggle.filter>Apply</b-button>
-                    <b-button variant="danger" v-b-toggle.filter>Cancel</b-button>
-                </b-form-group>
+                <b-button variant="info" @click="getFilteredPetitions" v-b-toggle.filter>Apply</b-button>
+                <b-button variant="danger" v-b-toggle.filter>Cancel</b-button>
             </div>
         </b-sidebar>
 
@@ -45,12 +31,17 @@
                 <b-icon-filter></b-icon-filter>
             </b-button>
 
-            <b-nav-form><b-input-group class="mx-3" v-if="!advFilter">
-                <b-form-input type="search" v-model="search.q" placeholder="Search..."></b-form-input>
-                <b-input-group-append>
-                    <b-button variant="info" @click="getFilteredPetitions"><b-icon-search></b-icon-search></b-button>
-                </b-input-group-append>
-            </b-input-group></b-nav-form>
+            <b-nav-form>
+                <b-input-group class="mx-3" v-if="!advFilter">
+                    <b-form-input type="search" v-model="search.q" placeholder="Search..."></b-form-input>
+
+                    <b-input-group-append>
+                        <b-button variant="info" @click="getFilteredPetitions">
+                            <b-icon-search></b-icon-search>
+                        </b-button>
+                    </b-input-group-append>
+                </b-input-group>
+            </b-nav-form>
         </b-navbar>
 
         <div v-for="petition in petitions" :key="petition.title" class="my-2">
@@ -63,6 +54,7 @@
 
 <script>
 import petitionSmall from "./components/Petition-small.vue"
+import inputField from "./components/input-field.vue"
 
 export default {
     data () {
@@ -112,7 +104,6 @@ export default {
                 this.$emit("error", err);
             });
         },
-
         getFilteredPetitions: function()
         {
             if (isNaN(this.search.startIndex) || 
@@ -141,7 +132,6 @@ export default {
                 this.$emit("error", err);
             });
         },
-
         getCategories: function()
         {
             this.$http.get("http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/categories")
@@ -160,7 +150,8 @@ export default {
         }
     },
     components: {
-        "petition-small": petitionSmall
+        "petition-small": petitionSmall,
+        "input-field": inputField
     }
 }
 </script>
