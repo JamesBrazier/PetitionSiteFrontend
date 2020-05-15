@@ -7,20 +7,20 @@
 
         <b-navbar variant="info" type="dark" toggleable sticky>
             <b-navbar-brand :to="{ name: 'home' }" left>
-                <b-icon-people-fill font-scale="1.45"></b-icon-people-fill>
+                <b-icon-people-fill font-scale="1.5"></b-icon-people-fill>
                 <b>Petition Site</b>
             </b-navbar-brand>
 
             <b-button v-if="user == null" variant="light" v-b-toggle.profile>
-                <b-icon-people-circle font-scale="1.45"></b-icon-people-circle>
+                <b-avatar size="1.7rem" class="mr-1" variant="dark"></b-avatar>
                 Sign in
             </b-button>
 
-            <b-dropdown v-else variant="light" right>
+            <b-dropdown v-else variant="light">
                 <template v-slot:button-content>
-                    <b-img style="height: 1.6rem;" alt=" " rounded
+                    <b-avatar size="1.7rem" class="mr-1" variant="dark" rounded="lg"
                      :src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/users/' + user.userId + '/photo'">
-                    </b-img>
+                    </b-avatar>
                     {{ user.name }}
                 </template>
 
