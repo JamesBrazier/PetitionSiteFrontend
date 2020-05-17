@@ -29,7 +29,7 @@
                     </b-col>
 
                     <b-col md="8">
-                        <b-list-group style="max-width: 20rem" class="mt-3">
+                        <b-list-group style="max-width: 20rem">
                             Dates:
                             <b-list-group-item class="mt-2">
                                 Created on {{ petition.createdDate }}
@@ -74,7 +74,7 @@
                 </template>
 
                 <b-row class="my-3 mx-auto">
-                    <b-col v-for="user in signatures" :key="user.name" left>
+                    <b-col v-for="user in signatures" :key="user.name" align-h="start">
                         <user-small :data="user" style="width: 16rem;" class="my-1"
                          :badge="user.signatoryId === petition.authorId ? 'Author' : null">
                         </user-small>

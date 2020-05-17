@@ -61,7 +61,8 @@ Vue.prototype.$throwErr = function(err)
         {
             title: "Error!",
             variant: "danger",
-            autoHideDelay: 5000,
+            //toaster: "b-toaster-top-full",
+            autoHideDelay: 30000,
             solid: true,
             appendToast: true
         }
