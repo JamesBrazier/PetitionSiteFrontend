@@ -7,8 +7,8 @@
         </b-navbar>
 
         <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
-            <b-card :title="petition.title" :sub-title="'Category: ' + petition.category"
-             :img-src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/' + petition.petitionId + '/photo'">
+            <b-card :title="petition.title" :sub-title="'Category: ' + petition.category" bg-variant="light"
+             :img-src="$rootUrl + 'petitions/' + petition.petitionId + '/photo'">
                 <b-alert variant="danger" :show="petition.closeIn < 0">
                     Petition has closed!
                 </b-alert>
@@ -28,7 +28,7 @@
                         </b-card-text>
                     </b-col>
 
-                    <b-col md="7">
+                    <b-col md="8">
                         <b-list-group style="max-width: 20rem" class="mt-3">
                             Dates:
                             <b-list-group-item class="mt-2">
@@ -47,7 +47,13 @@
                 </b-row>
 
                 <template v-slot:footer>
-                    <b-button variant="info" :disabled="petition.closeIn < 0">
+                    <b-button variant="info" v-if="checkSigned($user.userId)" 
+                     :disabled="petition.closeIn < 0" @click="unsignPetition()">
+                        Remove Signature
+                    </b-button>
+                    
+                    <b-button variant="info" :disabled="$user.userId == null || petition.closeIn < 0"
+                     @click="signPetition()" v-else>
                         Sign
                     </b-button>
 
@@ -57,23 +63,34 @@
                 </template>
             </b-card>
 
-            <b-card class="text-center mt-4 w-100" text-variant="white" bg-variant="info"
-             title="Users who have signed">
-                {{ petition.signatureCount }} signatures
-            </b-card>
+            <b-card class="text-center mt-4 w-100" bg-variant="light" no-body
+             header-bg-variant="info" header-text-variant="white"
+             footer-bg-variant="info" footer-text-variant="white">
+                <template v-slot:header>
+                    <h4>
+                        Users who signed
+                    </h4>
+                    {{ petition.signatureCount }} signatures
+                </template>
 
-            <b-card-group deck class="mx-auto">
-                <user-small v-for="user in signatures" :key="user.name" 
-                 :data="user" style="width: 16rem;" class="my-2"></user-small>
+                <b-row class="my-3 mx-auto">
+                    <b-col v-for="user in signatures" :key="user.name" left>
+                        <user-small :data="user" style="width: 16rem;" class="my-1"
+                         :badge="user.signatoryId === petition.authorId ? 'Author' : null">
+                        </user-small>
+                    </b-col>
+                </b-row>
 
-                <b-card v-if="petition.closeIn >= 0" style="max-width: 16rem; height: 9rem;"
-                 class="text-center my-2" title="Sign Petition?" bg-variant="info"
-                 text-variant="white">
-                    <b-button class="my-auto" variant="light">
+                <template v-if="!petition.signed && petition.closeIn >= 0" v-slot:footer>
+                    <h4>
+                        Sign Petition?
+                    </h4>
+                    <b-button class="my-auto" variant="light" :disabled="$user.userId == null"
+                     @click="signPetition()">
                         Join the effort! Add yours
                     </b-button>
-                </b-card>
-            </b-card-group>
+                </template>
+            </b-card>
         </div>
     </div>
 </template>
@@ -82,13 +99,14 @@
 import userSmall from "./components/User-small"
 
 export default {
-    data () {
+    data() {
         return {
             petition: {},
             signatures: []
         }
     },
-    mounted: function() 
+    props: ["id"],
+    mounted() 
     {
         function formatDate(date)
         {
@@ -97,26 +115,65 @@ export default {
         }
 
         this.$http.get(
-            "http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/" + this.$route.params.id
+            this.$rootUrl + "petitions/" + this.id
         ).then((res) => {
             this.petition = res.data;
             this.petition.closeIn = Math.round((new Date(res.data.closingDate) - Date.now()) / 86400000);
             this.petition.createdDate = formatDate(res.data.createdDate);
             this.petition.closingDate = formatDate(res.data.closingDate);
 
-            this.$http.get(
-                "http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/" + this.$route.params.id + "/signatures"
-            ).then((res) => {
-                this.signatures = res.data;
-            }).catch((err) => {
-                this.$emit("error", err);
-            });
+            this.getSignatures();
         }).catch((err) => {
-            this.$emit("error", err);
+            this.$throwErr(err);
         });
     },
     methods: {
-
+        getSignatures()
+        {
+            this.$http.get(
+                this.$rootUrl + "petitions/" + this.id + "/signatures"
+            ).then((res) => {
+                this.signatures = res.data;
+            }).catch((err) => {
+                this.$throwErr(err);
+            });
+        },
+        signPetition()
+        {
+            this.$http.post(
+                this.$rootUrl + "petitions/" + this.id + "/signatures",
+                null,
+                { headers: {
+                    "X-Authorization": this.$user.token
+                }}
+            ).then((res) => {
+                this.getSignatures();
+            }).catch((err) => {
+                this.$throwErr(err);
+            });
+        },
+        unsignPetition()
+        {
+            this.$http.delete(
+                this.$rootUrl + "petitions/" + this.id + "/signatures",
+                { headers: {
+                    "X-Authorization": this.$user.token
+                }}
+            ).then((res) => {
+                this.getSignatures();
+            }).catch((err) => {
+                this.$throwErr(err);
+            });
+        },
+        checkSigned(userId)
+        {
+            for (const user of this.signatures) {
+                if (user.signatoryId === userId) {
+                    return this.petition.signed = true;
+                }
+            }
+            return this.petition.signed = false;
+        }
     },
     components: {
         "user-small": userSmall

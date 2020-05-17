@@ -1,30 +1,25 @@
 <template>
     <div>
-        <b-alert v-for="(error, index) in errors" :key="error.message"
-         dismissible @dismissed="errors.splice(index, 1)" variant="danger" show>
-            Error: {{ error.message }}
-        </b-alert>
-
         <b-navbar variant="info" type="dark" toggleable sticky>
             <b-navbar-brand :to="{ name: 'home' }" left>
                 <b-icon-people-fill font-scale="1.5"></b-icon-people-fill>
                 <b>Petition Site</b>
             </b-navbar-brand>
 
-            <b-button v-if="user == null" variant="light" v-b-toggle.profile>
+            <b-button v-if="$user.userId == null" variant="light" v-b-toggle.profile>
                 <b-avatar size="1.7rem" class="mr-1" variant="dark"></b-avatar>
                 Sign in
             </b-button>
 
-            <b-dropdown v-else variant="light">
+            <b-dropdown v-else variant="light" right>
                 <template v-slot:button-content>
-                    <b-avatar size="1.7rem" class="mr-1" variant="dark" rounded="lg"
-                     :src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/users/' + user.userId + '/photo'">
+                    <b-avatar size="1.7rem" class="mr-1" variant="dark"
+                     :src="$rootUrl + 'users/' + $user.userId + '/photo'">
                     </b-avatar>
-                    {{ user.name }}
+                    {{ $user.name }}
                 </template>
 
-                <b-dropdown-item :to="{ name: 'user', params: { id: user.userId } }">
+                <b-dropdown-item :to="{ name: 'user', params: { id: $user.userId } }">
                     Account
                 </b-dropdown-item>
 
@@ -66,7 +61,7 @@
             </template>
         </b-sidebar>
 
-        <router-view @error="pushErr($event)"></router-view>
+        <router-view @userChange="updateUser($event)" @error="pushErr($event)"></router-view>
     </div>
 </template>
 
@@ -74,7 +69,7 @@
 import inputField from "./components/input-field.vue"
 
 export default {
-    data () {
+    data() {
         return {
             errors: [],
             valid: {
@@ -86,12 +81,11 @@ export default {
             login: {
                 email: "",
                 password: ""
-            },
-            user: null
+            }
         }
     },
     methods: {
-        loginUser: function()
+        loginUser()
         {
             this.valid.all = true;
             this.valid.login = null;
@@ -112,46 +106,44 @@ export default {
 
             if (this.valid.all) {
                 this.$http.post(
-                    "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/login", 
+                    this.$rootUrl + "users/login", 
                     this.login
                 ).then((resln) => {
                     this.valid.login = true;
+
                     this.$http.get(
-                        "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/" + resln.data.userId,
+                        this.$rootUrl + "users/" + resln.data.userId,
                     ).then((resg) => {
-                        this.user = {...resln.data, ...resg.data};
+                        //Combine the objects
+                        this.$user = {...resln.data, ...resg.data};
                         this.login = {email: "", password: ""};
                     }).catch((err) => {
-                        this.pushErr(err);
+                        this.$throwErr(err);
                     });
                 }).catch((err) => {
                     if (err.response.status === 400) {
                         this.valid.all = false;
                         this.valid.login = false;
                     } else {
-                        this.pushErr(err);
+                        this.$throwErr(err);
                     }
                 });
             }
         },
-        logoutUser: function()
+        logoutUser()
         {
             this.$http.post(
-                "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/logout", null,
+                this.$rootUrl + "users/logout", 
+                null,
                 { headers: {
-                    "X-Authorization": this.user.token
+                    "X-Authorization": this.$user.token
                 }}
             ).then((err) => {
-                this.user = null;
+                this.$user = {};
                 this.valid.login = null;
             }).catch((err) => {
-                this.pushErr(err);
+                this.$throwErr(err);
             });
-        },
-        pushErr: function(err)
-        {
-            this.errors.push(err);
-            throw err;
         }
     },
     components: {

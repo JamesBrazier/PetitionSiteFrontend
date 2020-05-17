@@ -1,33 +1,39 @@
 <template>
-    <div>
-        <b-card @click="$emit('click')" img-alt=" " :title="data.name"
-         :img-src="'http://csse-s365.canterbury.ac.nz:4001/api/v1/users/' + data.signatoryId + '/photo'"
-         :sub-title="formatLoc">
-            <b-card-text v-if="data.signedDate != null">
-                Signed: <br>
-                {{ formatDate(data.signedDate) }}
-            </b-card-text>
-        </b-card>
-    </div>
+    <b-card no-body>
+        <b-row>
+            <b-col sm="3" class="my-auto">
+                <b-avatar :src="$rootUrl + 'users/' + data.signatoryId + '/photo'" class="my-1 ml-3"
+                 variant="dark" :badge="badge" badge-variant="info"
+                 v-b-popover.hover.right="formatLoc" :title="data.name">
+                </b-avatar>
+            </b-col>
+
+            <b-col class="my-auto" :title="badge"
+             v-b-popover.hover.top="data.signedDate ? 'Signed on ' + formatDate(data.signedDate) : null">
+                <h5>{{ data.name }}</h5>
+            </b-col>
+        </b-row>
+    </b-card>
 </template>
 
 <script>
 export default {
-    data () {
+    data() {
         return {
-            image: true
+            toggle: false
         }
     },
-    props: ["data"],
+    props: ["data", "badge"],
     methods: {
-        formatDate: function(date)
+        formatDate(date)
         {
             let str = new Date(date).toUTCString();
             return str.substr(0, 16) + " at " + str.substr(17, 5);
         }
     },
     computed: {
-        formatLoc: function() {
+        formatLoc() 
+        {
             if (this.data.city != null) {
                 if (this.data.country != null) {
                     return this.data.city + ", " + this.data.country;

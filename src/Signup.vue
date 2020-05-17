@@ -38,7 +38,7 @@
 import inputField from "./components/input-field.vue"
 
 export default {
-    data () {
+    data() {
         return {
             creating: true,
             valid: {
@@ -59,7 +59,8 @@ export default {
         }
     },
     methods: {
-        postUser: function() {
+        postUser()
+        {
             this.valid.all = true;
 
             if (this.user.name !== "") {
@@ -93,16 +94,14 @@ export default {
             if (this.valid.all) {
                 if (this.city !== "") this.user.city = this.city;
                 if (this.country !== "") this.user.country = this.country;
-
-                console.log(this.user);
                 
                 this.$http.post(
-                    "http://csse-s365.canterbury.ac.nz:4001/api/v1/users/register", 
+                    this.$rootUrl + "users/register", 
                     this.user
                 ).then((res) => {
                     this.creating = false;
                 }).catch((err) => {
-                    this.$emit("error", err);
+                    this.$throwErr(err);
                 });
             }
         }

@@ -18,8 +18,6 @@ Vue.use(BootstrapVueIcons);
 Vue.use(VueAxios, axios);
 Vue.use(VueRouter);
 
-console.log
-
 const router = new VueRouter({
     routes: [
         {
@@ -29,11 +27,13 @@ const router = new VueRouter({
         },{
             path: "/users/:id",
             name: "user",
-            component: user
+            component: user,
+            props: true
         },{
             path: "/petitions/:id",
             name: "petition",
-            component: petition
+            component: petition,
+            props: true
         },{
             path: "/signup",
             name: "signup",
@@ -41,7 +41,33 @@ const router = new VueRouter({
         }
     ],
     mode: "history"
-})
+});
+
+Vue.prototype.$rootUrl = "http://csse-s365.canterbury.ac.nz:4001/api/v1/";
+Object.defineProperty(Vue.prototype, '$user', {
+    get() 
+    {
+        return this.$root.$data.user;
+    },
+    set(value) 
+    {
+        this.$root.$data.user = value;
+    }
+});
+Vue.prototype.$throwErr = function(err)
+{
+    this.$bvToast.toast(
+        err.response ? `${err.response.status} ${err.response.statusText}` : err.message, 
+        {
+            title: "Error!",
+            variant: "danger",
+            autoHideDelay: 5000,
+            solid: true,
+            appendToast: true
+        }
+    );
+    console.error(err.toJSON());
+}
 
 new Vue({
     el: '#app',
@@ -50,4 +76,4 @@ new Vue({
     data: {
         user: {}
     }
-})
+});

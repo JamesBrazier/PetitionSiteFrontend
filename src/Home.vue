@@ -15,18 +15,20 @@
                     </b-form-select>
                 </b-form-group>
 
-                <input-field label="Number to Show:" :state="!isNaN(search.count)" invalid="Please input a number"
-                 prepend="#" v-model="search.count" placeholder="Number..."></input-field>
+                <input-field label="Number to Show:" :state="validNum(search.count)" prepend="#"
+                 invalid="Please input a number" v-model="search.count" placeholder="Number...">
+                </input-field>
 
-                <input-field label="Number to Skip:" :state="!isNaN(search.startIndex)" invalid="Please input a number"
-                 prepend="#" v-model="search.startIndex" placeholder="Start after..."></input-field>
+                <input-field label="Number to Skip:" :state="validNum(search.startIndex)" prepend="#"
+                 invalid="Please input a number" v-model="search.startIndex" placeholder="Start after...">
+                </input-field>
 
-                <b-button variant="info" @click="getFilteredPetitions" v-b-toggle.filter>Apply</b-button>
+                <b-button variant="info" @click="getPetitions()" v-b-toggle.filter>Apply</b-button>
                 <b-button variant="danger" v-b-toggle.filter>Cancel</b-button>
             </div>
         </b-sidebar>
 
-        <b-navbar variant="light" type="dark" fixed>
+        <b-navbar variant="light" type="dark" border-variant="info" fixed>
             <b-button variant="info" v-b-toggle.filter @click="getCategories()">
                 <b-icon-filter></b-icon-filter>
             </b-button>
@@ -36,7 +38,7 @@
                     <b-form-input type="search" v-model="search.q" placeholder="Search..."></b-form-input>
 
                     <b-input-group-append>
-                        <b-button variant="info" @click="getFilteredPetitions">
+                        <b-button variant="info" @click="getPetitions()">
                             <b-icon-search></b-icon-search>
                         </b-button>
                     </b-input-group-append>
@@ -57,7 +59,7 @@ import petitionSmall from "./components/Petition-small.vue"
 import inputField from "./components/input-field.vue"
 
 export default {
-    data () {
+    data() {
         return {
             petitions: [],
             advFilter: false,
@@ -80,40 +82,39 @@ export default {
             }],
             search: {
                 startIndex: "",
-                count: "",
+                count: 20,
                 q: "",
                 categoryId: null,
                 sortBy: "SIGNATURES_DESC"
-            },
-            startIndexValid: true,
-            countValid: true
+            }
         }
     },
-    mounted: function() 
+    mounted() 
     {
-        this.getPetitions();
+        this.$http.get(this.$rootUrl + "petitions",
+        {params: {
+            count: 20
+        }} 
+        ).then((res) => {
+            this.petitions = res.data;
+        }).catch((err) => {
+            this.$throwErr(err);
+        });
     },
     methods: {
-        getPetitions: function() 
+        getPetitions()
         {
-            this.$http.get("http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions")
-            .then((res) => {
-                this.petitions = res.data;
-            }).catch((err) => {
-                this.$emit("error", err);
-            });
-        },
-        getFilteredPetitions: function()
-        {
-            if (isNaN(this.search.startIndex) ||
-                this.search.startIndex.trim() === "")
-            {
+            let valid = true;
+
+            if (isNaN(this.search.startIndex)) {
+                valid = false;
+            } else if (this.search.startIndex === "") {
                 this.search.startIndex = undefined;
             }
 
-            if (isNaN(this.search.count) ||
-                this.search.count.trim() === "")
-            {
+            if (isNaN(this.search.count)) {
+                valid = false;
+            } else if (this.search.count === "") {
                 this.search.count = undefined;
             }
 
@@ -121,17 +122,19 @@ export default {
                 this.search.q = undefined;
             }
 
-            this.$http.get("http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions",
-                { params: this.search }
-            ).then((res) => {
-                this.petitions = res.data;
-            }).catch((err) => {
-                this.$emit("error", err);
-            });
+            if (valid) {
+                this.$http.get(this.$rootUrl + "petitions",
+                    { params: this.search }
+                ).then((res) => {
+                    this.petitions = res.data;
+                }).catch((err) => {
+                    this.$throwErr(err);
+                });
+            }
         },
-        getCategories: function()
+        getCategories()
         {
-            this.$http.get("http://csse-s365.canterbury.ac.nz:4001/api/v1/petitions/categories")
+            this.$http.get(this.$rootUrl + "petitions/categories")
             .then((res) => {
                 this.categories = this.categories.splice(0, 1);
 
@@ -142,8 +145,12 @@ export default {
                     });
                 }
             }).catch((err) => {
-                this.$emit("error", err);
+                this.$throwErr(err);
             });
+        },
+        validNum(num)
+        {
+            return !isNaN(num) || num === undefined; 
         }
     },
     components: {
