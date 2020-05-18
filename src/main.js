@@ -12,6 +12,7 @@ import home from "./Home.vue"
 import user from "./User.vue"
 import petition from "./Petition.vue"
 import signUp from "./Signup.vue"
+import create from "./Create.vue"
 
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
@@ -38,12 +39,23 @@ const router = new VueRouter({
             path: "/signup",
             name: "signup",
             component: signUp
+        },{
+            path: "/peitions/edit/:id",
+            name: "edit",
+            component: create,
+            props: true
+        },{
+            path: "/petitions/create",
+            name: "create",
+            component: create
         }
     ],
     mode: "history"
 });
 
+//The root url for the server
 Vue.prototype.$rootUrl = "http://csse-s365.canterbury.ac.nz:4001/api/v1/";
+//the global user
 Object.defineProperty(Vue.prototype, '$user', {
     get() 
     {
@@ -54,6 +66,7 @@ Object.defineProperty(Vue.prototype, '$user', {
         this.$root.$data.user = value;
     }
 });
+//A universal function for error feedback
 Vue.prototype.$throwErr = function(err)
 {
     this.$bvToast.toast(

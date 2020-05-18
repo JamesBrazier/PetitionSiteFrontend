@@ -1,4 +1,7 @@
 <template>
+    <div>
+    <back-bar text="Cancel"></back-bar>
+
     <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
         <b-card title="Sign up">
             <div v-if="creating">
@@ -28,14 +31,16 @@
 
             <template v-slot:footer>
                 <b-button v-if="creating" variant="info" @click="postUser()">Sign me up!</b-button>
-                <b-button variant="danger" @click="$router.go(-1)">Back</b-button>
+                <!-- <b-button variant="danger" @click="$router.go(-1)">Cancel</b-button> -->
             </template>
         </b-card>
+    </div>
     </div>
 </template>
 
 <script>
-import inputField from "./components/input-field.vue"
+import inputField from "./components/Input-field.vue"
+import backBar from "./components/Back-bar.vue"
 
 export default {
     data() {
@@ -107,7 +112,8 @@ export default {
         }
     },
     components: {
-        "input-field": inputField
+        "input-field": inputField,
+        "back-bar": backBar
     }
 }
 </script>

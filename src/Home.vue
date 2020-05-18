@@ -28,12 +28,12 @@
             </div>
         </b-sidebar>
 
-        <b-navbar variant="light" type="dark" border-variant="info" fixed>
-            <b-button variant="info" v-b-toggle.filter @click="getCategories()">
-                <b-icon-filter></b-icon-filter>
-            </b-button>
-
+        <b-navbar variant="light" type="dark" border-variant="info" style="z-index: 1;" toggleable sticky>
             <b-nav-form>
+                <b-button variant="info" v-b-toggle.filter @click="getCategories()">
+                    <b-icon-funnel-fill></b-icon-funnel-fill>
+                </b-button>
+
                 <b-input-group class="mx-3" v-if="!advFilter">
                     <b-form-input type="search" v-model="search.q" placeholder="Search..."></b-form-input>
 
@@ -44,9 +44,14 @@
                     </b-input-group-append>
                 </b-input-group>
             </b-nav-form>
+
+            <b-button variant="success" :disabled="$user.userId == null" :to="{ name: 'create' }">
+                <b-icon-plus-circle class="mr-1"></b-icon-plus-circle>
+                Create Petition
+            </b-button>
         </b-navbar>
 
-        <div v-for="petition in petitions" :key="petition.title" class="my-2">
+        <div v-for="petition in petitions" :key="petition.title" class="mt-2 mb-3">
             <petition-small @click="$router.push({ name: 'petition', params: { id: petition.petitionId }})"
              :data="petition" style="max-width: 60rem;" class="w-75 mx-auto">
             </petition-small>
@@ -56,7 +61,7 @@
 
 <script>
 import petitionSmall from "./components/Petition-small.vue"
-import inputField from "./components/input-field.vue"
+import inputField from "./components/Input-field.vue"
 
 export default {
     data() {

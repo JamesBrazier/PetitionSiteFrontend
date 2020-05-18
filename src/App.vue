@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <b-navbar variant="info" type="dark" toggleable sticky>
+    <div class="mb-5">
+        <b-navbar variant="info" type="dark" toggleable fixed>
             <b-navbar-brand :to="{ name: 'home' }" left>
                 <b-icon-people-fill font-scale="1.5"></b-icon-people-fill>
                 <b>Petition Site</b>
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import inputField from "./components/input-field.vue"
+import inputField from "./components/Input-field.vue"
 
 export default {
     data() {

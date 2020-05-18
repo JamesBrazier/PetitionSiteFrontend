@@ -1,18 +1,24 @@
 <template>
     <div>
-        <b-navbar variant="light" type="dark" fixed>
-            <b-button @click="$router.go(-1)" variant="danger">
-                Back
-            </b-button>
-        </b-navbar>
+        <back-bar text="Back"></back-bar>
 
         <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
-            <b-card :title="petition.title" :sub-title="'Category: ' + petition.category" bg-variant="light"
-             :img-src="$rootUrl + 'petitions/' + petition.petitionId + '/photo'">
+            <b-card no-body border-variant="info" bg-variant="info">
+            <b-img :src="$rootUrl + 'petitions/' + petition.petitionId + '/photo'" fluid center rounded>
+            </b-img>
+            </b-card>
+
+            <div class="mt-3">
                 <b-alert variant="danger" :show="petition.closeIn < 0">
                     Petition has closed!
                 </b-alert>
-                
+
+                <b-alert variant="success" :show="checkSigned($user.userId)">
+                    You've signed this petition!
+                </b-alert>
+            </div>
+
+            <b-card :title="petition.title" :sub-title="'Category: ' + petition.category" bg-variant="light">
                 <b-card-text>
                     {{ petition.description }}
                 </b-card-text>
@@ -21,7 +27,7 @@
                     <b-col>
                         <b-card-text>
                             Author:
-                            <user-small style="width: 16rem;" class="my-2"
+                            <user-small style="width: 16rem;" class="mb-2"
                              :data="{name: petition.authorName, signatoryId: petition.authorId, 
                              city: petition.authorCity, country: petition.authorCountry}">
                             </user-small>
@@ -47,23 +53,32 @@
                 </b-row>
 
                 <template v-slot:footer>
-                    <b-button variant="info" v-if="checkSigned($user.userId)" 
+                    <b-button variant="info" v-if="checkAuthored($user.userId)" 
+                     :disbaled="petition.closeIn < 0" :to="{ name: 'edit', params: { id: id }}">
+                        <b-icon-pencil-square class="mr-1"></b-icon-pencil-square>
+                        Edit
+                    </b-button>
+
+                    <b-button variant="info" v-else-if="petition.signed" 
                      :disabled="petition.closeIn < 0" @click="unsignPetition()">
+                        <b-icon-person-dash-fill class="mr-1"></b-icon-person-dash-fill> 
                         Remove Signature
                     </b-button>
-                    
+
                     <b-button variant="info" :disabled="$user.userId == null || petition.closeIn < 0"
                      @click="signPetition()" v-else>
+                        <b-icon-person-plus-fill class="mr-1"></b-icon-person-plus-fill> 
                         Sign
                     </b-button>
 
-                    <b-button @click="$router.go(-1)" variant="danger">
-                        Back
+                    <b-button variant="info" v-b-modal.share :disabled="petition.closeIn < 0">
+                        <b-icon-link45deg font-scale="1.3"></b-icon-link45deg>
+                        Share
                     </b-button>
                 </template>
             </b-card>
 
-            <b-card class="text-center mt-4 w-100" bg-variant="light" no-body
+            <b-card class="text-center mt-3 w-100" bg-variant="light" no-body
              header-bg-variant="info" header-text-variant="white"
              footer-bg-variant="info" footer-text-variant="white">
                 <template v-slot:header>
@@ -73,15 +88,16 @@
                     {{ petition.signatureCount }} signatures
                 </template>
 
-                <b-row class="my-3 mx-auto">
+                <b-row class="text-left my-3 mx-auto">
                     <b-col v-for="user in signatures" :key="user.name" align-h="start">
                         <user-small :data="user" style="width: 16rem;" class="my-1"
-                         :badge="user.signatoryId === petition.authorId ? 'Author' : null">
+                         :badge="getBadge(user, $user.userId)">
                         </user-small>
                     </b-col>
                 </b-row>
 
-                <template v-if="!petition.signed && petition.closeIn >= 0" v-slot:footer>
+                <template v-if="!petition.signed && petition.closeIn >= 0"
+                 v-slot:footer>
                     <h4>
                         Sign Petition?
                     </h4>
@@ -92,11 +108,22 @@
                 </template>
             </b-card>
         </div>
+
+        <b-modal id="share" centered ok-only ok-variant="danger" ok-title="Back"
+         footer-bg-variant="light" header-bg-variant="info" header-text-variant="white">
+            <template v-slot:modal-title>
+                <b-icon-link45deg></b-icon-link45deg>
+                Share
+            </template>
+
+
+        </b-modal>
     </div>
 </template>
 
 <script>
 import userSmall from "./components/User-small"
+import backBar from "./components/Back-bar"
 
 export default {
     data() {
@@ -165,6 +192,16 @@ export default {
                 this.$throwErr(err);
             });
         },
+        getBadge(user, userId)
+        {
+            if (user.signatoryId === userId) {
+                return "You";
+            } else if (user.signatoryId === this.petition.authorId) {
+                return "Author";
+            } else {
+                return null;
+            }
+        },
         checkSigned(userId)
         {
             for (const user of this.signatures) {
@@ -173,10 +210,18 @@ export default {
                 }
             }
             return this.petition.signed = false;
+        },
+        checkAuthored(userId)
+        {
+            if (this.petition.authorId === userId) {
+                return this.petition.authored = true;
+            }
+            return this.petition.authored = false;
         }
     },
     components: {
-        "user-small": userSmall
+        "user-small": userSmall,
+        "back-bar": backBar
     }
 }
 </script>
