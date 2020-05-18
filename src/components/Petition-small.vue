@@ -9,11 +9,13 @@
             </b-card-title>
 
             <b-card-sub-title>
-                Author: {{ data.authorName }}
+                Category: {{ data.category }}
             </b-card-sub-title>
 
             <b-card-text class="mt-2">
                 {{ data.signatureCount }} signatures
+                <br>
+                Created by {{ data.authorName }}
             </b-card-text>
         </div>
     </b-card>

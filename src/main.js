@@ -55,6 +55,8 @@ const router = new VueRouter({
 
 //The root url for the server
 Vue.prototype.$rootUrl = "http://csse-s365.canterbury.ac.nz:4001/api/v1/";
+//The basic pattern for an email
+Vue.prototype.$emailRegex = /.+@.+\..+/;
 //the global user
 Object.defineProperty(Vue.prototype, '$user', {
     get() 

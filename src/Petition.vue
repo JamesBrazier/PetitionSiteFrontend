@@ -41,7 +41,7 @@
                                 Created on {{ petition.createdDate }}
                             </b-list-group-item>
 
-                            <b-list-group-item>
+                            <b-list-group-item v-if="petition.closeIn">
                                 {{ 
                                     petition.closeIn >= 0 ?
                                     "Closing on " + petition.closingDate + " (in " + petition.closeIn + " days)" :
@@ -54,7 +54,7 @@
 
                 <template v-slot:footer>
                     <b-button variant="info" v-if="checkAuthored($user.userId)" 
-                     :disbaled="petition.closeIn < 0" :to="{ name: 'edit', params: { id: id }}">
+                     :disabled="petition.closeIn < 0" :to="{ name: 'edit', params: { id: id }}">
                         <b-icon-pencil-square class="mr-1"></b-icon-pencil-square>
                         Edit
                     </b-button>
@@ -96,7 +96,7 @@
                     </b-col>
                 </b-row>
 
-                <template v-if="!petition.signed && petition.closeIn >= 0"
+                <template v-if="!petition.signed && !petition.closeIn < 0"
                  v-slot:footer>
                     <h4>
                         Sign Petition?
@@ -143,7 +143,7 @@ export default {
     {
         function formatDate(date)
         {
-            let str = new Date(date).toUTCString();
+            let str = date.toUTCString();
             return str.substr(0, 16) + " at " + str.substr(17, 5);
         }
 
@@ -151,9 +151,13 @@ export default {
             this.$rootUrl + "petitions/" + this.id
         ).then((res) => {
             this.petition = res.data;
-            this.petition.closeIn = Math.round((new Date(res.data.closingDate) - Date.now()) / 86400000);
-            this.petition.createdDate = formatDate(res.data.createdDate);
-            this.petition.closingDate = formatDate(res.data.closingDate);
+            this.petition.createdDate = formatDate(new Date(res.data.createdDate));
+
+            if (this.petition.closingDate) {
+                this.petition.closingDate = new Date(this.petition.closingDate);
+                this.petition.closeIn = Math.round((this.petition.closingDate - Date.now()) / 86400000);
+                this.petition.closingDate = formatDate(this.petition.closingDate);
+            }
 
             this.getSignatures();
         }).catch((err) => {

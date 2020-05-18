@@ -15,8 +15,8 @@
                     </b-form-select>
                 </b-form-group>
 
-                <input-field label="Number Per Page:" :state="validNum(search.count)" prepend="#"
-                 invalid="Please input a number" v-model="search.count" placeholder="Number...">
+                <input-field label="Number Per Page:" :state="validNum(pages.limit)" prepend="#"
+                 invalid="Please input a number" v-model="pages.limit" placeholder="Number...">
                 </input-field>
 
                 <b-button variant="info" @click="getPetitions(0)" v-b-toggle.filter>Apply</b-button>
@@ -47,10 +47,10 @@
             </b-button>
         </b-navbar>
 
-        <pagination v-model="search.startIndex" :perPage="pages.per" limit="5" :total="pages.total" 
-         class="mt-2" @input="getPetitions(search.startIndex)"></pagination>
+        <pagination v-model="pages.number" :perPage="parseInt(pages.limit)" limit="5" 
+         :total="pages.total" @input="filterPetitions" class="mt-2"></pagination>
 
-        <div v-for="petition in petitions" :key="petition.title" class="mt-2 mb-3">
+        <div v-for="petition in listPetitions" :key="petition.title" class="mt-2 mb-3">
             <petition-small @click="$router.push({ name: 'petition', params: { id: petition.petitionId }})"
              :data="petition" style="max-width: 60rem;" class="w-75 mx-auto">
             </petition-small>
@@ -67,6 +67,7 @@ export default {
     data() {
         return {
             petitions: [],
+            listPetitions: [],
             advFilter: false,
             categories: [{
                 value: null,
@@ -86,12 +87,11 @@ export default {
                 text: "Alphabetical Ascending"
             }],
             pages: {
+                number: 0,
                 total: 0,
-                per: 20
+                limit: 10
             },
             search: {
-                startIndex: 0,
-                count: 20,
                 q: "",
                 categoryId: null,
                 sortBy: "SIGNATURES_DESC"
@@ -103,22 +103,18 @@ export default {
         this.$http.get(this.$rootUrl + "petitions"
         ).then((res) => {
             this.pages.total = res.data.length;
-            this.petitions = res.data.slice(0, this.search.count);
+            this.petitions = res.data;
         }).catch((err) => {
             this.$throwErr(err);
         });
     },
     methods: {
-        getPetitions(start)
+        getPetitions()
         {
-            if (isNaN(this.search.count)) {
+            this.pages.number = 0;
+            if (isNaN(this.pages.limit)) {
                 return;
-            } else if (this.search.count === "") {
-                this.search.count = undefined;
             }
-            this.pages.per = parseInt(this.search.count);
-
-            this.search.startIndex = start;
 
             if (this.search.q === "") {
                 this.search.q = undefined;
@@ -127,6 +123,7 @@ export default {
             this.$http.get(this.$rootUrl + "petitions",
                 { params: this.search }
             ).then((res) => {
+                this.pages.total = res.data.length;
                 this.petitions = res.data;
             }).catch((err) => {
                 this.$throwErr(err);
@@ -150,8 +147,24 @@ export default {
         },
         validNum(num)
         {
-            return !isNaN(num) || num === undefined; 
+            if (!isNaN(num) || num === undefined) {
+                return true;
+            }
+            return false;
         }
+    },
+    computed: {
+        filterPetitions()
+        {
+            this.listPetitions = [];
+            let end = this.pages.number + this.pages.limit;
+
+            for (let i = this.pages.number; i < end; ++i) {
+                if (this.petitions[i] != null) {
+                    this.listPetitions.push(this.petitions[i]);
+                }
+            }
+        },
     },
     components: {
         "petition-small": petitionSmall,

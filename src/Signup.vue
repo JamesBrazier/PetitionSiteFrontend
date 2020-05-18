@@ -1,6 +1,6 @@
 <template>
     <div>
-    <back-bar text="Cancel"></back-bar>
+    <back-bar :text="creating ? 'Cancel' : 'Back'"></back-bar>
 
     <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
         <b-card title="Sign up">
@@ -31,7 +31,9 @@
 
             <template v-slot:footer>
                 <b-button v-if="creating" variant="info" @click="postUser()">Sign me up!</b-button>
-                <!-- <b-button variant="danger" @click="$router.go(-1)">Cancel</b-button> -->
+                <b-button v-else variant="info" :to="{ name: 'user', params: { id: newId }}">
+                    Account
+                </b-button>
             </template>
         </b-card>
     </div>
@@ -60,7 +62,8 @@ export default {
             },
             repeat: "",
             city: "",
-            country: ""
+            country: "",
+            newId: null
         }
     },
     methods: {
@@ -75,7 +78,7 @@ export default {
                 this.valid.all = false;
             }
 
-            if (this.user.email.includes('@')) {
+            if (this.user.email.match(this.$emailRegex)) {
                 this.valid.email = true;
             } else {
                 this.valid.email = false;
@@ -104,7 +107,21 @@ export default {
                     this.$rootUrl + "users/register", 
                     this.user
                 ).then((res) => {
+                    this.newId = res.data.userId;
                     this.creating = false;
+
+                    this.$http.post(
+                        this.$rootUrl + "users/login",
+                        {
+                            email: this.user.email,
+                            password: this.user.password
+                        }
+                    ).then((res) => {
+                        this.$user = {...this.user, ...res.data};
+                        delete this.$user.password;
+                    }).catch((err) => {
+                        this.$throwErr(err);
+                    });
                 }).catch((err) => {
                     this.$throwErr(err);
                 });

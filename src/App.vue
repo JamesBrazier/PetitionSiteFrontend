@@ -90,7 +90,7 @@ export default {
             this.valid.all = true;
             this.valid.login = null;
 
-            if (this.login.email.includes('@')) {
+            if (this.login.email.match(this.$emailRegex)) {
                 this.valid.email = true;
             } else {
                 this.valid.email = false;
