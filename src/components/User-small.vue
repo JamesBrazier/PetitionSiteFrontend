@@ -3,8 +3,9 @@
         <b-row :title="badge"
          v-b-popover.hover.top="data.signedDate ? 'Signed on ' + formatDate(data.signedDate) : null">
             <b-col sm="3" class="my-auto">
-                <b-avatar :src="$rootUrl + 'users/' + data.signatoryId + '/photo'" class="my-1 ml-3"
-                 variant="dark" :badge="badge" badge-variant="info" button>
+                <b-avatar button :src="$rootUrl + 'users/' + data.signatoryId + '/photo'" 
+                 class="my-1 ml-3" variant="dark" :badge="badge" badge-variant="info"
+                 @click="$router.push({name: 'user', params: { id: data.signatoryId }})">
                 </b-avatar>
             </b-col>
 

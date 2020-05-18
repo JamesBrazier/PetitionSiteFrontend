@@ -3,9 +3,9 @@
         <back-bar text="Back"></back-bar>
 
         <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
-            <b-card no-body border-variant="info" bg-variant="info">
-            <b-img :src="$rootUrl + 'petitions/' + petition.petitionId + '/photo'" fluid center rounded>
-            </b-img>
+            <b-card no-body border-variant="" bg-variant="light">
+                <b-img :src="$rootUrl + 'petitions/' + petition.petitionId + '/photo'" fluid center rounded>
+                </b-img>
             </b-card>
 
             <div class="mt-3">
@@ -109,14 +109,20 @@
             </b-card>
         </div>
 
-        <b-modal id="share" centered ok-only ok-variant="danger" ok-title="Back"
-         footer-bg-variant="light" header-bg-variant="info" header-text-variant="white">
+        <b-modal id="share" centered header-bg-variant="info" header-text-variant="white"
+         footer-bg-variant="light">
             <template v-slot:modal-title>
                 <b-icon-link45deg></b-icon-link45deg>
                 Share
             </template>
 
 
+
+            <template v-slot:modal-footer="{ cancel }">
+                <b-button variant="danger" @click="cancel()">
+                    Cancel
+                </b-button>
+            </template>
         </b-modal>
     </div>
 </template>

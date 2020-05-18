@@ -15,15 +15,11 @@
                     </b-form-select>
                 </b-form-group>
 
-                <input-field label="Number to Show:" :state="validNum(search.count)" prepend="#"
+                <input-field label="Number Per Page:" :state="validNum(search.count)" prepend="#"
                  invalid="Please input a number" v-model="search.count" placeholder="Number...">
                 </input-field>
 
-                <input-field label="Number to Skip:" :state="validNum(search.startIndex)" prepend="#"
-                 invalid="Please input a number" v-model="search.startIndex" placeholder="Start after...">
-                </input-field>
-
-                <b-button variant="info" @click="getPetitions()" v-b-toggle.filter>Apply</b-button>
+                <b-button variant="info" @click="getPetitions(0)" v-b-toggle.filter>Apply</b-button>
                 <b-button variant="danger" v-b-toggle.filter>Cancel</b-button>
             </div>
         </b-sidebar>
@@ -38,7 +34,7 @@
                     <b-form-input type="search" v-model="search.q" placeholder="Search..."></b-form-input>
 
                     <b-input-group-append>
-                        <b-button variant="info" @click="getPetitions()">
+                        <b-button variant="info" @click="getPetitions(0)">
                             <b-icon-search></b-icon-search>
                         </b-button>
                     </b-input-group-append>
@@ -51,6 +47,9 @@
             </b-button>
         </b-navbar>
 
+        <pagination v-model="search.startIndex" :perPage="pages.per" limit="5" :total="pages.total" 
+         class="mt-2" @input="getPetitions(search.startIndex)"></pagination>
+
         <div v-for="petition in petitions" :key="petition.title" class="mt-2 mb-3">
             <petition-small @click="$router.push({ name: 'petition', params: { id: petition.petitionId }})"
              :data="petition" style="max-width: 60rem;" class="w-75 mx-auto">
@@ -62,6 +61,7 @@
 <script>
 import petitionSmall from "./components/Petition-small.vue"
 import inputField from "./components/Input-field.vue"
+import pagination from "./components/Pagination.vue"
 
 export default {
     data() {
@@ -85,8 +85,12 @@ export default {
                 value: "ALPHABETICAL_ASC",
                 text: "Alphabetical Ascending"
             }],
+            pages: {
+                total: 0,
+                per: 20
+            },
             search: {
-                startIndex: "",
+                startIndex: 0,
                 count: 20,
                 q: "",
                 categoryId: null,
@@ -96,46 +100,37 @@ export default {
     },
     mounted() 
     {
-        this.$http.get(this.$rootUrl + "petitions",
-        {params: {
-            count: 20
-        }} 
+        this.$http.get(this.$rootUrl + "petitions"
         ).then((res) => {
-            this.petitions = res.data;
+            this.pages.total = res.data.length;
+            this.petitions = res.data.slice(0, this.search.count);
         }).catch((err) => {
             this.$throwErr(err);
         });
     },
     methods: {
-        getPetitions()
+        getPetitions(start)
         {
-            let valid = true;
-
-            if (isNaN(this.search.startIndex)) {
-                valid = false;
-            } else if (this.search.startIndex === "") {
-                this.search.startIndex = undefined;
-            }
-
             if (isNaN(this.search.count)) {
-                valid = false;
+                return;
             } else if (this.search.count === "") {
                 this.search.count = undefined;
             }
+            this.pages.per = parseInt(this.search.count);
+
+            this.search.startIndex = start;
 
             if (this.search.q === "") {
                 this.search.q = undefined;
             }
 
-            if (valid) {
-                this.$http.get(this.$rootUrl + "petitions",
-                    { params: this.search }
-                ).then((res) => {
-                    this.petitions = res.data;
-                }).catch((err) => {
-                    this.$throwErr(err);
-                });
-            }
+            this.$http.get(this.$rootUrl + "petitions",
+                { params: this.search }
+            ).then((res) => {
+                this.petitions = res.data;
+            }).catch((err) => {
+                this.$throwErr(err);
+            });
         },
         getCategories()
         {
@@ -160,7 +155,8 @@ export default {
     },
     components: {
         "petition-small": petitionSmall,
-        "input-field": inputField
+        "input-field": inputField,
+        pagination
     }
 }
 </script>
