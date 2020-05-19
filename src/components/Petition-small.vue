@@ -13,11 +13,13 @@
             </b-card-sub-title>
 
             <b-card-text class="mt-2">
-                {{ data.signatureCount }} signatures
-                <br>
                 Created by {{ data.authorName }}
             </b-card-text>
         </div>
+
+        <template v-slot:footer>
+            {{ data.signatureCount }} signatures
+        </template>
     </b-card>
 </template>
 

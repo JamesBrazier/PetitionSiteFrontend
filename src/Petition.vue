@@ -116,11 +116,32 @@
                 Share
             </template>
 
+            <div class="text-center">
+                <share-button site="facebook" :link="link"></share-button>
+                <share-button site="twitter" :link="link"></share-button>
+                <share-button site="linkedin" :link="link"></share-button>
+                <share-button site="reddit" :link="link"></share-button>
+                <share-button site="email" :link="link"></share-button>
 
+                <b-input-group prepend="Link" class="mt-3">
+                    <b-input :value="link" placeholder="Link" id="share-link">Link</b-input>
+
+                    <b-input-group-append>
+                        <b-button variant="info" @click="copyToClipboard('share-link'); shared = true">
+                            Copy
+                        </b-button>
+                    </b-input-group-append>
+                </b-input-group>
+
+                <b-alert class="mt-3 mb-0" variant="success" :show="shared" dismissible
+                 @dismissed="shared = false">
+                    Link copied to clipboard!
+                </b-alert>
+            </div>
 
             <template v-slot:modal-footer="{ cancel }">
-                <b-button variant="danger" @click="cancel()">
-                    Cancel
+                <b-button variant="danger" @click="cancel(); shared = false">
+                    Back
                 </b-button>
             </template>
         </b-modal>
@@ -130,12 +151,15 @@
 <script>
 import userSmall from "./components/User-small"
 import backBar from "./components/Back-bar"
+import shareButton from "./components/Share-button"
 
 export default {
     data() {
         return {
             petition: {},
-            signatures: []
+            signatures: [],
+            shared: false,
+            link: "https://canterbury.ac.nz/petitions/" + this.id
         }
     },
     props: ["id"],
@@ -227,11 +251,17 @@ export default {
                 return this.petition.authored = true;
             }
             return this.petition.authored = false;
+        },
+        copyToClipboard(id)
+        {
+            document.getElementById(id).select();
+            document.execCommand("copy");
         }
     },
     components: {
         "user-small": userSmall,
-        "back-bar": backBar
+        "back-bar": backBar,
+        "share-button": shareButton
     }
 }
 </script>

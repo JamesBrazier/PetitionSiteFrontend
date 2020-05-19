@@ -16,7 +16,7 @@
                 {{ index + 1 }}-{{ index + perPage }}
             </b-button>
 
-            <b-button variant="outline-info" class="text-dark" disabled>
+            <b-button v-if="ellipsis" variant="outline-info" class="text-dark" disabled>
                 <b-icon-three-dots></b-icon-three-dots>
             </b-button>
 
@@ -37,14 +37,15 @@
 export default {
     data() {
         return {
-            end: 0
+            end: 0,
+            ellipsis: false,
         }
     },
     props: ["value", "perPage", "limit", "total"],
     computed: {
         getPages()
         {
-            const halfLimit = (Math.round(this.limit / 2) - 1) * this.perPage;
+            const halfLimit = (Math.round(this.limit / 2)) * this.perPage;
             let list = [];
             let start = this.value - halfLimit;
             let end = this.total;
@@ -58,6 +59,9 @@ export default {
 
             if (this.value + halfLimit < end) {
                 end = this.value + halfLimit;
+                this.ellipsis = true;
+            } else {
+                this.ellipsis = false;
             }
 
             for (let i = start; i < end; i += this.perPage) {

@@ -11,7 +11,7 @@
 
             <b-col class="my-auto">
                 <h5>{{ data.name }}</h5>
-                <b-card-sub-title>{{ formatLoc }}</b-card-sub-title>
+                <b-card-sub-title class="mb-1">{{ formatLoc }}</b-card-sub-title>
             </b-col>
         </b-row>
     </b-card>

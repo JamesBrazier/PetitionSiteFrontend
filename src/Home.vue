@@ -81,10 +81,10 @@ export default {
                 text: "Signatures Ascending"
             },{
                 value: "ALPHABETICAL_DESC",
-                text: "Alphabetical Descending"
+                text: "Alphabetical Z -> A"
             },{
                 value: "ALPHABETICAL_ASC",
-                text: "Alphabetical Ascending"
+                text: "Alphabetical A -> Z"
             }],
             pages: {
                 number: 0,
