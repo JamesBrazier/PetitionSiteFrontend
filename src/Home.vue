@@ -50,11 +50,10 @@
         <pagination v-model="pages.number" :perPage="parseInt(pages.limit)" limit="5" 
          :total="pages.total" @input="filterPetitions" class="mt-2"></pagination>
 
-        <div v-for="petition in listPetitions" :key="petition.title" class="mt-2 mb-3">
-            <petition-small @click="$router.push({ name: 'petition', params: { id: petition.petitionId }})"
-             :data="petition" style="max-width: 60rem;" class="w-75 mx-auto">
-            </petition-small>
-        </div>
+        <petition-small v-for="petition in listPetitions" :key="petition.title"
+            @click="$router.push({ name: 'petition', params: { id: petition.petitionId }})"
+            :data="petition" style="max-width: 60rem;" class="mt-2 mb-3 w-75 mx-auto">
+        </petition-small>
     </div>
 </template>
 

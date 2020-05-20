@@ -33,19 +33,9 @@ export default {
         }
     },
     computed: {
-        formatLoc() 
+        formatLoc()
         {
-            if (this.data.city != null) {
-                if (this.data.country != null) {
-                    return this.data.city + ", " + this.data.country;
-                } else {
-                    return this.data.city;
-                }
-            } else {
-                if (this.data.country != null) {
-                    return this.data.country;
-                }
-            }
+            return this.$formatLoc(this.data.city, this.data.country);
         }
     }
 }

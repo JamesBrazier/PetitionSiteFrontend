@@ -2,14 +2,14 @@
     <div>
     <back-bar :text="creating ? 'Cancel' : 'Back'"></back-bar>
 
-    <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
+    <div style="max-width: 35rem;" class="m-2 w-75 mx-auto">
         <b-card title="Sign up">
             <div v-if="creating">
                 <input-field label="Name:" :state="valid.name" invalid="Please enter your name" 
                  v-model="user.name" placeholder="Jane Doe"></input-field>
 
                 <input-field label="Email:" :state="valid.email" invalid="Please enter a valid email"
-                 type="email" v-model="user.email" placeholder="jane.doe@email.com" prepend="@"></input-field>
+                 v-model="user.email" placeholder="jane.doe@email.com" prepend="@"></input-field>
 
                 <input-field label="Password:" type="password" v-model="user.password" placeholder="Password"
                  :state="valid.password" invalid="Please enter a password" prepend="*"></input-field>
@@ -31,9 +31,15 @@
 
             <template v-slot:footer>
                 <b-button v-if="creating" variant="info" @click="postUser()">Sign me up!</b-button>
-                <b-button v-else variant="info" :to="{ name: 'user', params: { id: newId }}">
-                    Account
-                </b-button>
+                <div v-else>
+                    <b-button variant="info" :to="{ name: 'user', params: { id: newId }}">
+                        Account
+                    </b-button>
+
+                    <b-button variant="info" @click="$router.go(-1)">
+                        Ok
+                    </b-button>
+                </div>
             </template>
         </b-card>
     </div>

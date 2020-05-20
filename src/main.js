@@ -84,6 +84,21 @@ Vue.prototype.$throwErr = function(err)
     );
     console.error(err.toJSON());
 }
+//A universal function for formating user location
+Vue.prototype.$formatLoc = function(city, country)
+{
+    if (city != null) {
+        if (country != null) {
+            return city + ", " + country;
+        } else {
+            return city;
+        }
+    } else {
+        if (country != null) {
+            return country;
+        }
+    }
+}
 
 new Vue({
     el: '#app',

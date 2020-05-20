@@ -11,8 +11,8 @@
                 <b-icon-chevron-left></b-icon-chevron-left>
             </b-button>
 
-            <b-button v-for="index in getPages" :key="index" variant="outline-info"
-             @click="$emit('input', index)" :pressed="index === value">
+            <b-button v-for="index in getPages" :key="index" @click="$emit('input', index)"
+             :variant=" index === value ? 'info' : 'outline-info'">
                 {{ index + 1 }}-{{ index + perPage }}
             </b-button>
 

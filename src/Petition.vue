@@ -3,7 +3,7 @@
         <back-bar text="Back"></back-bar>
 
         <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
-            <b-card no-body border-variant="" bg-variant="light">
+            <b-card no-body border-variant="light" bg-variant="light">
                 <b-img :src="$rootUrl + 'petitions/' + petition.petitionId + '/photo'" fluid center rounded>
                 </b-img>
             </b-card>
@@ -78,7 +78,7 @@
                 </template>
             </b-card>
 
-            <b-card class="text-center mt-3 w-100" bg-variant="light" no-body
+            <b-card class="text-center mt-3" bg-variant="light" no-body
              header-bg-variant="info" header-text-variant="white"
              footer-bg-variant="info" footer-text-variant="white">
                 <template v-slot:header>
@@ -109,9 +109,8 @@
             </b-card>
         </div>
 
-        <b-modal id="share" centered header-bg-variant="info" header-text-variant="white"
-         footer-bg-variant="light">
-            <template v-slot:modal-title>
+        <modal id="share">
+            <template v-slot:title>
                 <b-icon-link45deg></b-icon-link45deg>
                 Share
             </template>
@@ -139,12 +138,12 @@
                 </b-alert>
             </div>
 
-            <template v-slot:modal-footer="{ cancel }">
+            <template v-slot:footer="{ cancel }">
                 <b-button variant="danger" @click="cancel(); shared = false">
                     Back
                 </b-button>
             </template>
-        </b-modal>
+        </modal>
     </div>
 </template>
 
@@ -152,6 +151,7 @@
 import userSmall from "./components/User-small"
 import backBar from "./components/Back-bar"
 import shareButton from "./components/Share-button"
+import modal from "./components/Modal"
 
 export default {
     data() {
@@ -261,7 +261,8 @@ export default {
     components: {
         "user-small": userSmall,
         "back-bar": backBar,
-        "share-button": shareButton
+        "share-button": shareButton,
+        modal
     }
 }
 </script>

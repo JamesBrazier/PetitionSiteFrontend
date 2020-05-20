@@ -23,7 +23,7 @@
                     Account
                 </b-dropdown-item>
 
-                <b-dropdown-item @click="logoutUser()">
+                <b-dropdown-item @click="logoutUser()" :to="{ name: 'home' }">
                     Logout
                 </b-dropdown-item>
             </b-dropdown>
@@ -113,6 +113,9 @@ export default {
 
                     this.$http.get(
                         this.$rootUrl + "users/" + resln.data.userId,
+                        { headers: {
+                            "X-Authorization": resln.data.token
+                        }}
                     ).then((resg) => {
                         //Combine the objects
                         this.$user = {...resln.data, ...resg.data};
