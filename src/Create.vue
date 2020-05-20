@@ -2,7 +2,7 @@
     <div>
         <back-bar text="Cancel"></back-bar>
 
-        Petitions {{ id ? 'edit ' + id : 'create' }}
+        Petitions Create
     </div>
 </template>
 
@@ -12,7 +12,6 @@ import petitionSmall from "./components/Petition-small.vue"
 import backBar from "./components/Back-bar.vue"
 
 export default {
-    props: ["id"],
     components: {
         "input-field": inputField,
         "petition-small": petitionSmall,

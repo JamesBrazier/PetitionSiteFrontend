@@ -86,7 +86,7 @@
                 Upload File
             </template>
 
-            
+
         </modal>
     </div>
 </template>
@@ -131,6 +131,14 @@ export default {
         }).catch((err) => {
             this.$throwErr(err);
         });
+    },
+    watch: {
+        $user: function(user, _) 
+        {
+            if (user.userId == null) {
+                this.$router.replace({ name: "home" });
+            }
+        }
     },
     methods: {
         postChanges()

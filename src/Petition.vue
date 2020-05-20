@@ -27,7 +27,7 @@
                     <b-col>
                         <b-card-text>
                             Author:
-                            <user-small style="width: 16rem;" class="mb-2"
+                            <user-small style="width: 16rem;" class="my-2"
                              :data="{name: petition.authorName, signatoryId: petition.authorId, 
                              city: petition.authorCity, country: petition.authorCountry}">
                             </user-small>
@@ -54,7 +54,7 @@
 
                 <template v-slot:footer>
                     <b-button variant="info" v-if="checkAuthored($user.userId)" 
-                     :disabled="petition.closeIn < 0" :to="{ name: 'edit', params: { id: id }}">
+                     :disabled="petition.closeIn < 0">
                         <b-icon-pencil-square class="mr-1"></b-icon-pencil-square>
                         Edit
                     </b-button>
@@ -96,7 +96,7 @@
                     </b-col>
                 </b-row>
 
-                <template v-if="!petition.signed && !petition.closeIn < 0"
+                <template v-if="!petition.signed || !petition.closeIn < 0"
                  v-slot:footer>
                     <h4>
                         Sign Petition?
@@ -156,6 +156,7 @@ import modal from "./components/Modal"
 export default {
     data() {
         return {
+            editing: false,
             petition: {},
             signatures: [],
             shared: false,

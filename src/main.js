@@ -40,11 +40,6 @@ const router = new VueRouter({
             name: "signup",
             component: signUp
         },{
-            path: "/peitions/edit/:id",
-            name: "edit",
-            component: create,
-            props: true
-        },{
             path: "/petitions/create",
             name: "create",
             component: create

@@ -23,7 +23,7 @@
                     Account
                 </b-dropdown-item>
 
-                <b-dropdown-item @click="logoutUser()" :to="{ name: 'home' }">
+                <b-dropdown-item @click="logoutUser()">
                     Logout
                 </b-dropdown-item>
             </b-dropdown>
