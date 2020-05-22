@@ -5,13 +5,13 @@
                 <input-field label="Title:" type="search" v-model="search.q" placeholder="Search...">
                 </input-field>
 
-                <b-form-group label="Category:" label-for="srch-c">
-                    <b-form-select id="srch-c" v-model="search.categoryId" :options="categories">
+                <b-form-group label="Category:">
+                    <b-form-select v-model="search.categoryId" :options="categories">
                     </b-form-select>
                 </b-form-group>
 
-                <b-form-group label="Order:" label-for="srch-o">
-                    <b-form-select id="srch-o" v-model="search.sortBy" :options="orderings">
+                <b-form-group label="Order:">
+                    <b-form-select v-model="search.sortBy" :options="orderings">
                     </b-form-select>
                 </b-form-group>
 

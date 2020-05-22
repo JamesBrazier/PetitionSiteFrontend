@@ -4,19 +4,13 @@
 
         <div style="max-width: 40rem" class="m-2 w-75 mx-auto">
             <b-card class="text-center" bg-variant="light" border-variant="light">
-                <b-avatar variant="dark" size="15rem" icon="camera" badge-variant="transparent" 
-                 badge-offset="-15px" :src="$rootUrl + 'users/' + $user.userId + '/photo'"
-                 style="z-index: 0;">
-                    <template v-if="editing" v-slot:badge>
-                        <b-button variant="info" v-b-modal.file pill>
-                            <b-icon-upload class="mr-1"></b-icon-upload>
-                            Upload
-                        </b-button>
-                    </template>
+                <b-avatar variant="dark" size="15rem" icon="camera"
+                :src="$rootUrl + 'users/' + $user.userId + '/photo'">
                 </b-avatar>
+                <upload class="mt-1"></upload>
             </b-card>
 
-            <b-card v-if="editing" class="my-3" bg-variant="light">
+            <b-card v-if="mode === 1" class="my-3" bg-variant="light">
                 <input-field label="Name:" v-model="user.name" :placeholder="$user.name"></input-field>
 
                 <input-field label="Email:" prepend="@" :placeholder="$user.email" :state="valid.email"
@@ -49,8 +43,35 @@
                         Save
                     </b-button>
 
-                    <b-button variant="danger" @click="editing = passwordToggle = false">
+                    <b-button variant="danger" @click="mode = 0; passwordToggle = false">
                         Cancel
+                    </b-button>
+                </template>
+            </b-card>
+
+            <b-card v-else-if="mode === 2" title="Sign up" bg-variant="light" class="my-3">
+                <input-field label="Name:" :state="valid.name" invalid="Please enter your name" 
+                 v-model="user.name" placeholder="Jane Doe"></input-field>
+
+                <input-field label="Email:" :state="valid.email" invalid="Please enter a valid email"
+                 v-model="user.email" placeholder="jane.doe@email.com" prepend="@"></input-field>
+
+                <input-field label="Password:" type="password" v-model="user.password" placeholder="Password"
+                 :state="valid.password" invalid="Please enter a password" prepend="*"></input-field>
+
+                <input-field label="Repeat Password:" type="password" v-model="repeat" 
+                 :state="valid.repeat" invalid="Passwords do not match" placeholder="Password" 
+                 prepend="*"></input-field>
+
+                <input-field label="Home City (Optional):" v-model="user.city" 
+                 placeholder="New York"></input-field>
+
+                <input-field label="Home Country (Optional):" v-model="user.country" 
+                 placeholder="United States of America"></input-field>
+
+                <template v-slot:footer>
+                    <b-button variant="info" @click="postNewUser()">
+                        Sign me up!
                     </b-button>
                 </template>
             </b-card>
@@ -61,33 +82,35 @@
                 </b-card-text>
 
                 <template v-slot:footer>
-                    <b-button variant="info" @click="editing = true;">
+                    <b-button variant="info" @click="mode = 1;">
                         <b-icon-pencil-square class="mr-1"></b-icon-pencil-square>
                         Edit
                     </b-button>
                 </template>
             </b-card>
 
-            <b-card class="mt-3 pb-3" header-bg-variant="info" header-text-variant="white" no-body>
+            <b-card v-if="mode === 0" class="mt-3" header-bg-variant="info" 
+             header-text-variant="white" footer-bg-variant="info" footer-text-variant="white" no-body>
                 <template v-slot:header>
                     <h4 class="text-center">Your Petitions</h4>
                 </template>
 
                 <petition-small v-for="petition in petitions" :key="petition.title" :data="petition"
                  @click="$router.push({ name: 'petition', params: { id: petition.petitionId }})"
-                 class="mx-3 mt-3">
+                 class="mx-3 my-3">
                 </petition-small>
+
+                <template v-slot:footer>
+                    <div class="text-center">
+                        <h4>Create New Petition?</h4>
+
+                        <b-button variant="light" :to="{ name: 'create' }">
+                            Express your opinion!
+                        </b-button>
+                    </div>
+                </template>
             </b-card>
         </div>
-
-        <modal id="file">
-            <template v-slot:title>
-                <b-icon-file-earmark-arrow-up></b-icon-file-earmark-arrow-up>
-                Upload File
-            </template>
-
-
-        </modal>
     </div>
 </template>
 
@@ -95,15 +118,18 @@
 import backBar from "./components/Back-bar"
 import inputField from "./components/Input-field"
 import petitionSmall from "./components/Petition-small"
-import modal from "./components/Modal"
+import upload from "./components/Upload"
+
+const Viewing = 0, Editing = 1, Creating = 2; 
 
 export default {
     data() {
         return {
-            editing: false,
+            mode: Viewing,
             passwordToggle: false,
             petitions: [],
             valid: {
+                name: true,
                 email: true,
                 password: true,
                 repeat: true
@@ -121,21 +147,26 @@ export default {
     },
     props: ["id"],
     mounted() {
-        this.$http.get(
-            this.$rootUrl + "petitions",
-            { params: {
-                authorId: this.$user.userId
-            }}
-        ).then((res) => {
-            this.petitions = res.data;
-        }).catch((err) => {
-            this.$throwErr(err);
-        });
+        if (this.id == null) {
+            this.mode = Creating;
+        } else {
+            this.$http.get(
+                this.$rootUrl + "petitions",
+                { params: {
+                    authorId: this.$user.userId
+                }}
+            ).then((res) => {
+                this.petitions = res.data;
+            }).catch((err) => {
+                this.$throwErr(err);
+            });
+        }
     },
     watch: {
         $user: function(user, _) 
         {
-            if (user.userId == null) {
+            if (user.userId == null) { 
+                //if the users logs out don't stay on this page
                 this.$router.replace({ name: "home" });
             }
         }
@@ -144,8 +175,6 @@ export default {
         postChanges()
         {
             let valid = true;
-
-            console.log(this.user);
 
             for (const field in this.user) {
                 if (this.user[field] === "") {
@@ -178,8 +207,6 @@ export default {
             }
 
             if (valid) {
-                console.log(this.user, this.$user);
-
                 this.$http.patch(
                     this.$rootUrl + "users/" + this.$user.userId,
                     this.user,
@@ -194,7 +221,67 @@ export default {
                         this.user[field] = undefined;
                     }
 
-                    this.editing = this.passwordToggle = false;
+                    this.mode = Viewing; 
+                    this.passwordToggle = false;
+                }).catch((err) => {
+                    this.$throwErr(err);
+                });
+            }
+        },
+        postNewUser()
+        {
+            let valid = true;
+
+            if (this.user.name !== "") {
+                this.valid.name = true;
+            } else {
+                this.valid.name = false;
+                valid = false;
+            }
+
+            if (this.user.email.match(this.$emailRegex)) {
+                this.valid.email = true;
+            } else {
+                this.valid.email = false;
+                valid = false;
+            }
+            
+            if (this.user.password !== "") {
+                this.valid.password = true;
+            } else {
+                this.valid.password = false;
+                valid = false;
+            }
+
+            if (this.repeat === this.user.password) {
+                this.valid.repeat = true;
+            } else {
+                this.valid.repeat = false;
+                valid = false;
+            }
+
+            if (valid) {
+                if (this.user.city === "") this.user.city = undefined;
+                if (this.user.country === "") this.user.country = undefined;
+                
+                this.$http.post(
+                    this.$rootUrl + "users/register", 
+                    this.user
+                ).then((res) => {
+                    this.mode = Viewing;
+
+                    this.$http.post(
+                        this.$rootUrl + "users/login",
+                        {
+                            email: this.user.email,
+                            password: this.user.password
+                        }
+                    ).then((res) => {
+                        delete this.user.password;
+                        this.$user = {...this.user, ...res.data};
+                    }).catch((err) => {
+                        this.$throwErr(err);
+                    });
                 }).catch((err) => {
                     this.$throwErr(err);
                 });
@@ -211,7 +298,7 @@ export default {
         "back-bar": backBar,
         "input-field": inputField,
         "petition-small": petitionSmall,
-        modal
+        upload
     }
 }
 </script>
