@@ -61,18 +61,19 @@ export default {
     methods: {
         uploadFile()
         {
-            const reader = new FileReader();
             const file = this.inputElement.files[0];
 
-            reader.onload = (function(image) { //capture the image element
-                return function(event) { image.src = event.target.result; console.log(image); }; 
+            const urlReader = new FileReader();
+            urlReader.onload = (function(image) { //capture the image element
+                return function(event) { image.src = event.target.result; }; 
             })(this.imageElement);
-            reader.readAsDataURL(file);
+            urlReader.readAsDataURL(file);
 
-            // reader.onload = (function(vm) { //capture vm
-            //     return function(event) { vm.$emit("input", event.target.result); }
-            // })(this);
-            // reader.readAsArrayBuffer(file);
+            const dataReader = new FileReader();
+            dataReader.onload = (function(vm, type) {
+                return function(event) { vm.$emit("input", { data: event.target.result, type}); };
+            })(this, file.type);
+            dataReader.readAsArrayBuffer(file);
         },
         cancelFile()
         {

@@ -14,7 +14,7 @@
             <b-dropdown v-else variant="light" right>
                 <template v-slot:button-content>
                     <b-avatar size="1.7rem" class="mr-1" variant="dark"
-                     :src="$rootUrl + 'users/' + $user.userId + '/photo'">
+                     :src="$rootUrl + 'users/' + $user.userId + '/photo?cache=' + $cache">
                     </b-avatar>
                     {{ $user.name }}
                 </template>

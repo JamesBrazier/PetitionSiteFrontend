@@ -41,7 +41,7 @@ const router = new VueRouter({
             component: petitionEdit,
             props: true
         },{
-            path: "/petitions/create",
+            path: "/create/petition",
             name: "create petition",
             component: petitionEdit
         },{
@@ -50,7 +50,7 @@ const router = new VueRouter({
             component: userEdit,
             props: true
         },{
-            path: "/users/create",
+            path: "/create/user",
             name: "create user",
             component: userEdit
         }
@@ -73,6 +73,17 @@ Object.defineProperty(Vue.prototype, '$user', {
         this.$root.$data.user = value;
     }
 });
+//this is so that I can force certain images to reload
+Object.defineProperty(Vue.prototype, '$cache', {
+    get() 
+    {
+        return this.$root.$data.cache;
+    },
+    set(_) 
+    {
+        this.$root.$data.cache = Math.random();
+    }
+});
 //A universal function for error feedback
 Vue.prototype.$throwErr = function(err)
 {
@@ -87,7 +98,7 @@ Vue.prototype.$throwErr = function(err)
             appendToast: true
         }
     );
-    console.error(err.toJSON());
+    console.error(err.response, err.request);
 }
 //A universal function for formating user location
 Vue.prototype.$format = {
@@ -117,6 +128,7 @@ new Vue({
     router: router,
     render: h => h(app),
     data: {
-        user: {}
+        user: {},
+        cache: 0
     }
 });

@@ -4,8 +4,8 @@
 
         <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
             <b-card no-body border-variant="light" bg-variant="light" footer-bg-variant="light">
-                <b-img-lazy :src="$rootUrl + 'petitions/' + petition.petitionId + '/photo'" 
-                 alt=" " fluid center rounded>
+                <b-img-lazy  alt=" " fluid center rounded
+                 :src="$rootUrl + 'petitions/' + petition.petitionId + '/photo?cache=' + $cache">
                 </b-img-lazy>
             </b-card>
 

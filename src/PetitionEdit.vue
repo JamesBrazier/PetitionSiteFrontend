@@ -3,8 +3,8 @@
         <back-bar text="Cancel"></back-bar>
 
         <div style="max-width: 80rem;" class="m-2 w-75 mx-auto">
-            <upload v-model="image" :base-img="$rootUrl + 'petitions/' + id + '/photo'"
-             :reset="!creating"></upload>
+            <upload v-model="image" :base-img="$rootUrl + 'petitions/' + id + '/photo?cache=' + $cache">
+            </upload>
 
             <b-card class="mt-3" bg-variant="light">
                 <input-field label="Title:" v-model="petition.title" :state="valid.title"
@@ -66,7 +66,7 @@ export default {
             },
             closingDateSet: false,
             currentImage: "",
-            image: undefined,
+            image: null,
             valid: {
                 title: true,
                 category: true,
@@ -186,7 +186,23 @@ export default {
                         "X-Authorization": this.$user.token
                     }}
                 ).then((res) => {
-                    this.$router.push({ name: "petition", params: { id: this.id } });
+                    if (this.image) {
+                        this.$http.put(
+                            this.$rootUrl + "petitions/" + this.id + "/photo",
+                            this.image.data,
+                            { headers: {
+                                "X-Authorization": this.$user.token,
+                                "Content-Type": this.image.type
+                            }}
+                        ).then((_) => {
+                            this.$cache++;
+                            this.$router.replace({ name: "petition", params: { id: this.id } });
+                        }).catch((err) => {
+                            this.$throwErr(err);
+                        });
+                    } else {
+                        this.$router.replace({ name: "petition", params: { id: this.id } });
+                    }
                 }).catch((err) => {
                     this.$throwErr(err);
                 });
@@ -202,6 +218,22 @@ export default {
                         "X-Authorization": this.$user.token
                     }}
                 ).then((res) => {
+                    if (this.image) {
+                        this.$http.put(
+                            this.$rootUrl + "petitions/" + res.data.petitionId + "/photo",
+                            this.image.data,
+                            { headers: {
+                                "X-Authorization": this.$user.token,
+                                "Content-Type": this.image.type
+                            }}
+                        ).then((_) => {
+                            this.$cache++;
+                            this.$router.replace({ name: 'petition', params: { id: res.data.petitionId } });
+                        }).catch((err) => {
+                            this.$throwErr(err);
+                        });
+                    }
+
                     this.$http.post(
                         this.$rootUrl + "petitions/" + res.data.petitionId + "/signatures",
                         null,
@@ -209,7 +241,9 @@ export default {
                             "X-Authorization": this.$user.token
                         }}
                     ).then((_) => {
-                        this.$router.replace({ name: 'petition', params: { id: res.data.petitionId } });
+                        if (!this.image) {
+                            this.$router.replace({ name: 'petition', params: { id: res.data.petitionId } });
+                        }
                     }).catch((err) => {
                         this.$throwErr(err);
                     });

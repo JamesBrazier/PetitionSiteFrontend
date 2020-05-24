@@ -5,7 +5,7 @@
         <div style="max-width: 40rem" class="m-2 w-75 mx-auto">
             <b-card class="text-center" bg-variant="light" border-variant="light">
                 <b-avatar variant="dark" size="15rem" icon="camera"
-                :src="$rootUrl + 'users/' + $user.userId + '/photo'">
+                :src="$rootUrl + 'users/' + $user.userId + '/photo?cache=' + $cache">
                 </b-avatar>
             </b-card>
 

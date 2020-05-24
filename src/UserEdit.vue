@@ -3,14 +3,14 @@
         <back-bar text="Back"></back-bar>
 
         <div style="max-width: 40rem" class="m-2 w-75 mx-auto">
-            <upload v-model="image" :base-img="$rootUrl + 'users/' + id + '/photo'"
+            <upload v-model="image" :base-img="$rootUrl + 'users/' + id + '/photo?cache=' + $cache"
              :reset="!creating" avatar></upload>
 
             <b-card bg-variant="light" class="mt-3">
                 <input-field label="Name:" :state="valid.name" invalid="Please enter your name" 
                  v-model="user.name" placeholder="Name"></input-field>
 
-                <input-field label="Email:" :state="valid.email" invalid="Please enter a valid email"
+                <input-field label="Email:" :state="valid.email" :invalid="valid.emailMsg"
                  v-model="user.email" placeholder="Email" prepend="@"></input-field>
                 
                 <input-field label="Home City (Optional):" v-model="user.city" 
@@ -73,6 +73,7 @@ export default {
             valid: {
                 name: true,
                 email: true,
+                emailMsg: null,
                 password: true,
                 repeat: true
             },
@@ -111,12 +112,23 @@ export default {
         }
     },
     methods: {
+        checkRes(err) 
+        {
+            if (err.response.status === 400) {
+                this.valid.email = false;
+                this.valid.emailMsg = "That email is already in use";
+            } else {
+                this.$throwErr(err);
+            }
+        },
         postChanges()
         {
             let valid = true;
 
+            console.log(this.user);
+
             for (const field in this.user) {
-                if (this.user[field] === "") {
+                if (this.user[field] === "" || this.user[field] === null) {
                     this.user[field] = undefined;
                 }
             }
@@ -160,9 +172,37 @@ export default {
                         this.user[field] = undefined;
                     }
 
-                    this.$router.push({ name: 'user', params: { id: this.id } })
+                    if (this.image === undefined) { //no change
+                        this.$router.push({ name: 'user', params: { id: this.id } });
+                    } else if (this.image === null) { //delete
+                        this.$http.delete(
+                            this.$rootUrl + "users/" + this.id + "/photo",
+                            { headers: {
+                                "X-Authorization": this.$user.token
+                            }}
+                        ).then((_) => {
+                            this.$cache++;
+                            this.$router.push({ name: 'user', params: { id: this.id } });
+                        }).catch((err) => {
+                            this.$throwErr(err);
+                        })
+                    } else { //new image
+                        this.$http.put(
+                            this.$rootUrl + "users/" + this.id + "/photo",
+                            this.image.data,
+                            { headers: {
+                                "X-Authorization": this.$user.token,
+                                "Content-Type": this.image.type
+                            }}
+                        ).then((_) => {
+                            this.$cache++;
+                            this.$router.push({ name: 'user', params: { id: this.id } });
+                        }).catch((err) => {
+                            this.$throwErr(err);
+                        });
+                    }
                 }).catch((err) => {
-                    this.$throwErr(err);
+                    this.checkRes(err);
                 });
             }
         },
@@ -177,10 +217,11 @@ export default {
                 valid = false;
             }
 
-            if (this.user.email.match(this.$emailRegex)) {
+            if (this.user.email && this.user.email.match(this.$emailRegex)) {
                 this.valid.email = true;
             } else {
                 this.valid.email = false;
+                this.valid.emailMsg = "Please enter a valid email";
                 valid = false;
             }
             
@@ -206,8 +247,6 @@ export default {
                     this.$rootUrl + "users/register", 
                     this.user
                 ).then((res) => {
-                    this.mode = Viewing;
-
                     this.$http.post(
                         this.$rootUrl + "users/login",
                         {
@@ -218,12 +257,28 @@ export default {
                         delete this.user.password;
                         this.$user = {...this.user, ...res.data};
 
-                        this.$router.go(-1);
+                        if (this.image) {
+                            this.$http.put(
+                                this.$rootUrl + "users/" + this.id + "/photo",
+                                this.image.data,
+                                { headers: {
+                                    "X-Authorization": res.data.token,
+                                    "Content-Type": this.image.type
+                                }}
+                            ).then((_) => {
+                                this.$cache++;
+                                this.$router.go(-1);
+                            }).catch((err) => {
+                                this.$throwErr(err);
+                            });
+                        } else {
+                            this.$router.go(-1);
+                        }
                     }).catch((err) => {
                         this.$throwErr(err);
                     });
                 }).catch((err) => {
-                    this.$throwErr(err);
+                    this.checkRes(err);
                 });
             }
         }
