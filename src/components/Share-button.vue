@@ -28,7 +28,10 @@ export default {
             }
         }
     },
-    props: ["site", "link"],
+    props: {
+        "site": String, 
+        "link": String
+    },
     methods: {
         capitalize(str)
         {

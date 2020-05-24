@@ -9,8 +9,10 @@ import "bootstrap-vue/dist/bootstrap-vue.css"
 
 import app from "./App.vue"
 import home from "./Home.vue"
-import user from "./User.vue"
 import petition from "./Petition.vue"
+import petitionEdit from "./PetitionEdit.vue"
+import user from "./User.vue"
+import userEdit from "./UserEdit.vue"
 
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
@@ -34,13 +36,23 @@ const router = new VueRouter({
             component: petition,
             props: true
         },{
-            path: "/users/create",
-            name: "signup",
-            component: user
+            path: "/petitions/:id/edit",
+            name: "edit petition",
+            component: petitionEdit,
+            props: true
         },{
             path: "/petitions/create",
-            name: "create",
-            component: petition
+            name: "create petition",
+            component: petitionEdit
+        },{
+            path: "/users/:id/edit",
+            name: "edit user",
+            component: userEdit,
+            props: true
+        },{
+            path: "/users/create",
+            name: "create user",
+            component: userEdit
         }
     ],
     mode: "history"
@@ -78,18 +90,25 @@ Vue.prototype.$throwErr = function(err)
     console.error(err.toJSON());
 }
 //A universal function for formating user location
-Vue.prototype.$formatLoc = function(city, country)
-{
-    if (city != null) {
-        if (country != null) {
-            return city + ", " + country;
+Vue.prototype.$format = {
+    location(city, country)
+    {
+        if (city != null) {
+            if (country != null) {
+                return city + ", " + country;
+            } else {
+                return city;
+            }
         } else {
-            return city;
+            if (country != null) {
+                return country;
+            }
         }
-    } else {
-        if (country != null) {
-            return country;
-        }
+    },
+    date(date)
+    {
+        let str = date.toUTCString();
+        return str.substr(0, 16) + " at " + str.substr(17, 5);
     }
 }
 

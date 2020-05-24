@@ -24,7 +24,10 @@ export default {
             toggle: false
         }
     },
-    props: ["data", "badge"],
+    props: {
+        "data": Object,
+        "badge": String
+    },
     methods: {
         formatDate(date)
         {
@@ -35,7 +38,7 @@ export default {
     computed: {
         formatLoc()
         {
-            return this.$formatLoc(this.data.city, this.data.country);
+            return this.$format.location(this.data.city, this.data.country);
         }
     }
 }

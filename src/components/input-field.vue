@@ -11,9 +11,16 @@
 
 <script>
 export default {
-    props: [
-        "label", "state", "invalid", "valid", "disabled", 
-        "type", "value", "placeholder", "prepend"
-    ]
+    props: {
+        "label": String,
+        "state": undefined,
+        "invalid": String,
+        "valid": String,
+        "disabled": Boolean,
+        "type": String,
+        "value": String,
+        "placeholder": String,
+        "prepend": String
+    }
 }
 </script>

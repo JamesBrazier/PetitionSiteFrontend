@@ -1,6 +1,6 @@
 <template>
     <b-card v-b-tooltip="'Click for view'" @click="$emit('click')" bg-variant="light" no-body>
-        <b-card-img-lazy :src="$rootUrl + 'petitions/' + data.petitionId + '/photo'" top>
+        <b-card-img-lazy :src="$rootUrl + 'petitions/' + data.petitionId + '/photo'" alt=" " top>
         </b-card-img-lazy>
 
         <div class="m-3">
@@ -25,6 +25,8 @@
 
 <script>
 export default {
-    props: ["data"]
+    props: {
+        "data": Object
+    }
 }
 </script>

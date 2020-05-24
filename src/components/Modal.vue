@@ -19,6 +19,8 @@
 
 <script>
 export default {
-    props: ["id"]
+    props: {
+        "id": String
+    }
 }
 </script>

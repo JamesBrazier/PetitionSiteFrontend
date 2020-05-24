@@ -41,13 +41,13 @@
                 </b-input-group>
             </b-nav-form>
 
-            <b-button variant="success" :disabled="$user.userId == null" :to="{ name: 'create' }">
+            <b-button variant="success" :disabled="$user.userId == null" :to="{ name: 'create petition' }">
                 <b-icon-plus-circle class="mr-1"></b-icon-plus-circle>
                 Create Petition
             </b-button>
         </b-navbar>
 
-        <pagination v-model="pages.number" :perPage="parseInt(pages.limit)" limit="5" 
+        <pagination v-model="pages.number" :per-page="parseInt(pages.limit)" :limit="5" 
          :total="pages.total" @input="filterPetitions" class="mt-2"></pagination>
 
         <petition-small v-for="petition in listPetitions" :key="petition.title"

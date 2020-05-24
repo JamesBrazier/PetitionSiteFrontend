@@ -41,7 +41,12 @@ export default {
             ellipsis: false,
         }
     },
-    props: ["value", "perPage", "limit", "total"],
+    props: {
+        "value": Number,
+        "per-page": Number,
+        "limit": Number,
+        "total": Number
+    },
     computed: {
         getPages()
         {
