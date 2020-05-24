@@ -21,9 +21,11 @@
 
             <b-card :title="petition.title" :sub-title="'Category: ' + petition.category" 
              bg-variant="light">
-                <b-card-text>
-                    {{ petition.description }}
-                </b-card-text>
+                <b-card class="my-3" no-body>
+                    <b-card-text class="mx-3 mb-4" style="white-space: pre-line;">
+                        {{ petition.description }}
+                    </b-card-text>
+                </b-card>
 
                 <b-row>
                     <b-col>
@@ -36,18 +38,18 @@
                         </b-card-text>
                     </b-col>
 
-                    <b-col md="8">
-                        <b-list-group style="max-width: 20rem">
+                    <b-col md="7">
+                        <b-list-group style="max-width: 27rem">
                             Dates:
                             <b-list-group-item class="mt-2">
-                                Created on {{ petition.createdDate }}
+                                Created on {{ petition.createdDate }} UTC
                             </b-list-group-item>
 
                             <b-list-group-item v-if="petition.closeIn">
                                 {{ 
                                     petition.closeIn >= 0 ?
-                                    "Closing on " + petition.closingDate + " (in " + petition.closeIn + " days)" :
-                                    "Closed on " + petition.closingDate + " (" + (-petition.closeIn) + " days ago)"
+                                    "Closing on " + petition.closingDate + " UTC (in " + petition.closeIn + " days)" :
+                                    "Closed on " + petition.closingDate + " UTC (" + (-petition.closeIn) + " days ago)"
                                 }}
                             </b-list-group-item>
                         </b-list-group>
@@ -233,7 +235,13 @@ export default {
                     "X-Authorization": this.$user.token
                 }}
             ).then((res) => {
-                this.getSignatures(); //change
+                this.signatures.push({
+                    signatoryId: this.$user.userId,
+                    name: this.$user.name,
+                    city: this.$user.city,
+                    country: this.$user.country,
+                    signedDate: (new Date()).toISOString()
+                });
             }).catch((err) => {
                 this.$throwErr(err);
             });
@@ -246,7 +254,12 @@ export default {
                     "X-Authorization": this.$user.token
                 }}
             ).then((res) => {
-                this.getSignatures(); //change
+                for (const index in this.signatures) {
+                    if (this.signatures[index].signatoryId === this.$user.userId) {
+                        this.signatures.splice(index, 1);
+                        break;
+                    }
+                }
             }).catch((err) => {
                 this.$throwErr(err);
             });
@@ -290,10 +303,10 @@ export default {
                 this.$throwErr(err);
             });
         },
-        copyToClipboard(id)
+        copyToClipboard()
         {
             if (this.shareLinkElement == null) {
-                this.shareLinkElement = document.getElementById(id);
+                this.shareLinkElement = document.getElementById("share-link");
             }
             this.shareLinkElement.select();
             document.execCommand("copy");

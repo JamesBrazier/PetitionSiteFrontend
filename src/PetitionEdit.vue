@@ -24,10 +24,14 @@
 
                 <b-form-group label="Closing Date:" :state="valid.closingDate"
                  invalid-feedback="Please enter a closing date in the future or disable">
-                    <b-form-checkbox variant="info" v-if="creating" v-model="closingDateSet"
+                    <b-form-checkbox variant="info" v-model="closingDateSet"
                      class="mb-1" inline switch>
                         {{ closingDateSet ? 'Closes on' : 'No closing date' }}
                     </b-form-checkbox>
+
+                    <div v-if="closingDateSet" class="sub-text">
+                        This will be automatically set to UTC on submission
+                    </div>
 
                     <b-form-datepicker variant="info" :min="petition.createdDate" selected-variant="info"
                      style="max-width: 25rem;" v-model="petition.closingDate" 
@@ -260,3 +264,10 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.sub-text {
+    color: #6c757d !important;
+    font-size: 80%;
+}
+</style>
