@@ -22,11 +22,11 @@
                 Upload
             </b-button>
 
-            <b-button v-if="reset" variant="danger" @click="cancelFile()">
+            <b-button variant="danger" @click="cancelFile()">
                 Reset
             </b-button>
 
-            <b-button variant="danger" @click="removeImage()">
+            <b-button v-if="remove" variant="danger" @click="removeImage()">
                 <b-icon-x class="mr-1"></b-icon-x>
                 Remove
             </b-button>
@@ -52,7 +52,7 @@ export default {
         "value": Object,
         "base-img": String,
         "avatar": Boolean,
-        "reset": Boolean
+        "remove": Boolean
     },
     mounted() {
         this.inputElement = document.getElementById("upload-input");

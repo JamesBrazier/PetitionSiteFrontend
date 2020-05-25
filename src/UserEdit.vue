@@ -4,7 +4,7 @@
 
         <div style="max-width: 40rem" class="m-2 w-75 mx-auto">
             <upload v-model="image" :base-img="$rootUrl + 'users/' + id + '/photo?cache=' + $cache"
-             :reset="!creating" avatar></upload>
+             :remove="!creating" avatar></upload>
 
             <b-card bg-variant="light" class="mt-3">
                 <input-field label="Name:" :state="valid.name" invalid="Please enter your name" 
@@ -21,7 +21,8 @@
 
                 <div v-if="creating">
                     <input-field label="Password:" prepend="*" placeholder="Password"
-                     :state="valid.password" v-model="user.password" type="password"></input-field>
+                     :state="valid.password" v-model="user.password" type="password"
+                     invalid="Please enter a password"></input-field>
 
                     <input-field label="Repeat Password:" prepend="*" placeholder="Password"
                      :state="valid.repeat" invalid="Passwords do not match" type="password"
@@ -30,11 +31,12 @@
 
                 <div v-else-if="passwordToggle">
                     <input-field label="Current Password:" prepend="*" placeholder="Password"
-                     :state="valid.password" invalid="Please enter current and new password to change"
+                     :state="valid.current" invalid="Incorrect password"
                      v-model="user.currentPassword" type="password"></input-field>
 
                     <input-field label="New Password:" prepend="*" placeholder="Password"
-                     :state="valid.password" v-model="user.password" type="password"></input-field>
+                     :state="valid.password" v-model="user.password" type="password"
+                     invalid="Please enter current and a new password to change"></input-field>
 
                     <input-field label="Repeat New Password:" prepend="*" placeholder="Password"
                      :state="valid.repeat" invalid="Passwords do not match" type="password"
@@ -74,18 +76,19 @@ export default {
                 name: true,
                 email: true,
                 emailMsg: null,
+                current: true,
                 password: true,
                 repeat: true
             },
             user: {
-                name: undefined,
+                name: "",
                 city: undefined,
                 country: undefined,
-                email: undefined,
-                currentPassword: undefined,
-                password: undefined
+                email: "",
+                currentPassword: "",
+                password: ""
             },
-            repeat: undefined
+            repeat: ""
         }
     },
     props: ["id"],
@@ -112,20 +115,9 @@ export default {
         }
     },
     methods: {
-        checkRes(err) 
-        {
-            if (err.response.status === 400) {
-                this.valid.email = false;
-                this.valid.emailMsg = "That email is already in use";
-            } else {
-                this.$throwErr(err);
-            }
-        },
         postChanges()
         {
             let valid = true;
-
-            console.log(this.user);
 
             for (const field in this.user) {
                 if (this.user[field] === "" || this.user[field] === null) {
@@ -182,7 +174,7 @@ export default {
                             }}
                         ).then((_) => {
                             this.$cache++;
-                            this.$router.push({ name: 'user', params: { id: this.id } });
+                            this.$router.replace({ name: 'user', params: { id: this.id } });
                         }).catch((err) => {
                             this.$throwErr(err);
                         })
@@ -196,13 +188,25 @@ export default {
                             }}
                         ).then((_) => {
                             this.$cache++;
-                            this.$router.push({ name: 'user', params: { id: this.id } });
+                            this.$router.replace({ name: 'user', params: { id: this.id } });
                         }).catch((err) => {
                             this.$throwErr(err);
                         });
                     }
                 }).catch((err) => {
-                    this.checkRes(err);
+                    if (err.response.status === 400) {
+                        //shouldn't have to check status messages but whatever
+                        if (err.response.statusText.match("email")) {
+                            this.valid.current = true;
+                            this.valid.email = false;
+                            this.valid.emailMsg = "Email is already in use";
+                        } else {
+                            this.valid.email = true;
+                            this.valid.current = false;
+                        }
+                    } else {
+                        this.$throwErr(err);
+                    }
                 });
             }
         },
@@ -259,7 +263,7 @@ export default {
 
                         if (this.image) {
                             this.$http.put(
-                                this.$rootUrl + "users/" + this.id + "/photo",
+                                this.$rootUrl + "users/" + res.data.userId + "/photo",
                                 this.image.data,
                                 { headers: {
                                     "X-Authorization": res.data.token,
@@ -267,18 +271,23 @@ export default {
                                 }}
                             ).then((_) => {
                                 this.$cache++;
-                                this.$router.go(-1);
+                                this.$router.replace({ name: 'home' });
                             }).catch((err) => {
                                 this.$throwErr(err);
                             });
                         } else {
-                            this.$router.go(-1);
+                            this.$router.replace({ name: 'home' });
                         }
                     }).catch((err) => {
                         this.$throwErr(err);
                     });
                 }).catch((err) => {
-                    this.checkRes(err);
+                    if (err.response.status === 400) {
+                        this.valid.email = false;
+                        this.valid.emailMsg = "Email is already in use";
+                    } else {
+                        this.$throwErr(err);
+                    }
                 });
             }
         }

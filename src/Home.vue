@@ -54,6 +54,10 @@
             @click="$router.push({ name: 'petition', params: { id: petition.petitionId }})"
             :data="petition" style="max-width: 60rem;" class="mt-2 mb-3 w-75 mx-auto">
         </petition-small>
+
+        <p v-if="listPetitions.length < 1" class="text-center mt-5">
+            No petitions match search criteria
+        </p>
     </div>
 </template>
 
